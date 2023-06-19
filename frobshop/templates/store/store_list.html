@@ -1,0 +1,1018 @@
+<!DOCTYPE html>
+(% extends 'oscar/dashboard/orders.html' %)
+(% block content %)
+<html lang="en-gb" class="no-js"><head>
+        <title>
+    Orders |
+    Dashboard | HOLIOLI -
+
+</title>
+
+        <meta http-equiv="content-type" content="text/html; charset=UTF-8">
+        <meta name="created" content="17th Jun 2023 04:10">
+        <meta name="description" content="">
+        <meta name="viewport" content="width=device-width">
+
+
+            <link rel="shortcut icon" href="/static/oscar/favicon.ico">
+
+
+
+
+    <link rel="stylesheet" type="text/css" href="/static/oscar/css/dashboard.css">
+
+
+
+
+
+    <link rel="stylesheet" href="/static/oscar/js/select2/select2.min.css">
+    <link rel="stylesheet" href="/static/oscar/css/select2-bootstrap.min.css">
+    <link rel="stylesheet" href="/static/oscar/js/bootstrap4-datetimepicker/tempusdominus-bootstrap-4.min.css">
+
+
+
+
+
+    <meta name="robots" content="NONE,NOARCHIVE">
+
+
+
+
+
+    </head>
+
+    <body id="default" class="default orders" data-new-gr-c-s-check-loaded="14.1112.0" data-gr-ext-installed="">
+
+
+
+        <nav class="navbar navbar-expand-lg navbar-dark bg-dark navbar-accounts">
+            <a class="navbar-brand" href="#">HOLIOLI</a>
+            <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#top_nav_bar" aria-controls="top_nav_bar" aria-expanded="false" aria-label="Toggle navigation">
+                <i class="fas fa-bars"></i>
+            </button>
+
+            <div class="collapse navbar-collapse" id="top_nav_bar">
+                <ul class="navbar-nav mr-auto"></ul>
+                <ul class="navbar-nav">
+                    <li class="nav-item">
+                        <a class="nav-link disabled" href="#">
+                            Welcome <em>niv@gmail.com</em>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/catalogue/"><i class="fas fa-home"></i> Return to site</a>
+                  </li>
+                  <li class="nav-item">
+                    <a class="nav-link" href="/accounts/"><i class="fas fa-user"></i> Account</a>
+                  </li>
+                  <li class="nav-item">
+                    <a class="nav-link" href="/dashboard/logout/"><i class="fas fa-sign-out-alt"></i> Log out</a>
+                  </li>
+                </ul>
+          </div>
+        </nav>
+
+
+
+
+        <nav class="navbar navbar-expand-lg navbar-dark bg-dark navbar-primary">
+            <button class="navbar-toggler float-right" type="button" data-toggle="collapse" data-target="#bottom_nav_bar" aria-controls="bottom_nav_bar" aria-expanded="false" aria-label="Toggle navigation">
+                <i class="fas fa-bars"></i>
+            </button>
+
+            <div class="collapse navbar-collapse" id="bottom_nav_bar">
+                <ul class="navbar-nav">
+
+                        <li class="nav-item ">
+                            <a class="nav-link " href="/dashboard/">
+                                <i class="fas fa-list"></i>
+                                Dashboard
+                            </a>
+
+
+                        </li>
+
+                        <li class="nav-item dropdown">
+                            <a class="nav-link dropdown-toggle" href="#" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                <i class="fas fa-sitemap"></i>
+                                Catalog
+                            </a>
+
+
+                                <div class="dropdown-menu" aria-labelledby="navbarDropdown">
+
+                                        <a class="dropdown-item" href="/dashboard/catalogue/">
+
+                                            Products
+                                        </a>
+
+                                        <a class="dropdown-item" href="/dashboard/catalogue/product-types/">
+
+                                            Product Types
+                                        </a>
+
+                                        <a class="dropdown-item" href="/dashboard/catalogue/categories/">
+
+                                            Categories
+                                        </a>
+
+                                        <a class="dropdown-item" href="/dashboard/ranges/">
+
+                                            Ranges
+                                        </a>
+
+                                        <a class="dropdown-item" href="/dashboard/catalogue/stock-alerts/">
+
+                                            Low stock alerts
+                                        </a>
+
+                                        <a class="dropdown-item" href="/dashboard/catalogue/option/">
+
+                                            Options
+                                        </a>
+
+                                </div>
+
+                        </li>
+
+                        <li class="nav-item dropdown">
+                            <a class="nav-link dropdown-toggle" href="#" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                <i class="fas fa-shopping-cart"></i>
+                                Fulfilment
+                            </a>
+
+
+                                <div class="dropdown-menu" aria-labelledby="navbarDropdown">
+
+                                        <a class="dropdown-item" href="/dashboard/orders/">
+
+                                            Orders
+                                        </a>
+
+                                        <a class="dropdown-item" href="/dashboard/orders/statistics/">
+
+                                            Statistics
+                                        </a>
+
+                                        <a class="dropdown-item" href="/dashboard/partners/">
+
+                                            Partners
+                                        </a>
+
+                                </div>
+
+                        </li>
+
+                        <li class="nav-item dropdown">
+                            <a class="nav-link dropdown-toggle" href="#"  role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                <i class="fas fa-users"></i>
+                                Customers
+                            </a>
+
+
+                                <div class="dropdown-menu" aria-labelledby="navbarDropdown">
+
+                                        <a class="dropdown-item" href="/dashboard/users/">
+
+                                            Customers
+                                        </a>
+
+                                        <a class="dropdown-item" href="/dashboard/users/alerts/">
+
+                                            Stock alert requests
+                                        </a>
+
+                                </div>
+
+                        </li>
+
+                        <li class="nav-item dropdown">
+                            <a class="nav-link dropdown-toggle" href="#"  role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                <i class="fas fa-bullhorn"></i>
+                                Offers
+                            </a>
+
+
+                                <div class="dropdown-menu" aria-labelledby="navbarDropdown">
+
+                                        <a class="dropdown-item" href="/dashboard/offers/">
+
+                                            Offers
+                                        </a>
+
+                                        <a class="dropdown-item" href="/dashboard/vouchers/">
+
+                                            Coupons
+                                        </a>
+
+                                        <a class="dropdown-item" href="/dashboard/vouchers/sets/">
+
+                                            Voucher Sets
+                                        </a>
+
+                                </div>
+
+                        </li>
+
+                        <li class="nav-item dropdown">
+                            <a class="nav-link dropdown-toggle" href="#"  role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                <i class="fas fa-folder"></i>
+                                Content
+                            </a>
+
+
+                                <div class="dropdown-menu" aria-labelledby="navbarDropdown">
+
+                                        <a class="dropdown-item" href="/dashboard/pages/">
+
+                                            Pages
+                                        </a>
+
+                                        <a class="dropdown-item" href="/dashboard/comms/">
+
+                                            Email templates
+                                        </a>
+
+                                        <a class="dropdown-item" href="/dashboard/reviews/">
+
+                                            Reviews
+                                        </a>
+
+                                </div>
+
+                        </li>
+
+                        <li class="nav-item ">
+                            <a class="nav-link " href="/dashboard/reports/">
+                                <i class="fas fa-chart-bar"></i>
+                                Reports
+                            </a>
+
+
+                        </li>
+
+                        <li class="nav-item dropdown">
+                            <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                <i class="fas fa-globe"></i>
+                                Accounts
+                            </a>
+
+
+                                <div class="dropdown-menu" aria-labelledby="navbarDropdown">
+
+                                        <a class="dropdown-item" href="/dashboard/accounts/">
+
+                                            Accounts
+                                        </a>
+
+                                        <a class="dropdown-item" href="/dashboard/accounts/transfers/">
+
+                                            Transfers
+                                        </a>
+
+                                        <a class="dropdown-item" href="/dashboard/accounts/reports/deferred-income/">
+
+                                            Deferred income report
+                                        </a>
+
+                                        <a class="dropdown-item" href="/dashboard/accounts/reports/profit-loss/">
+
+                                            Profit/loss report
+                                        </a>
+
+                                </div>
+
+                        </li>
+
+                </ul>
+            </div>
+        </nav>
+
+
+    <div class="container-fluid">
+
+    <nav aria-label="breadcrumb">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="/dashboard/">Dashboard</a></li>
+            <li class="breadcrumb-item active" aria-current="page">Orders</li>
+        </ol>
+    </nav>
+
+
+        <div class="content">
+
+
+
+
+<div id="messages">
+
+</div>
+
+
+    <div class="page-header">
+        <h1>Orders</h1>
+    </div>
+
+            <div class="page-content">
+
+
+    <div class="table-header">
+        <h3><i class="fas fa-search"></i> Search</h3>
+    </div>
+    <div class="card card-body bg-light">
+        <form method="get" class="form-inline" id="search_form">
+
+
+
+                        <div class="form-group mr-2">
+                            <label for="id_order_number">Order number:</label>
+                            <input type="text" name="order_number" class="form-control"  fdprocessedid="1hrre">
+
+                        </div>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+            <input type="submit" value="Search" class="btn btn-primary mr-2" fdprocessedid="whhl0j">
+            <a data-toggle="modal" data-target="#SearchModal" href="#">Advanced Search</a>
+        </form>
+
+
+
+
+<div class="modal fade" data-show="true" id="SearchModal" role="dialog">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Advanced Search</h3>
+                <button type="button" class="close" data-dismiss="modal">×</button>
+            </div>
+            <form method="get" class="form-stacked">
+                <div class="modal-body">
+                    <div class="container">
+
+
+
+
+
+
+
+
+
+
+
+
+
+        <div class="form-group row">
+
+
+
+                    <label for="id_order_number" class="col-sm-4 col-form-label">
+                        Order number
+                    </label>
+
+
+
+
+                <div class="col-sm-8">
+
+
+                            <input type="text" name="order_number" class="form-control" id="id_order_number">
+
+
+
+
+
+
+
+
+
+
+                </div>
+
+        </div>
+
+
+
+
+
+
+
+
+
+
+        <div class="form-group row">
+
+
+
+                    <label for="id_name" class="col-sm-4 col-form-label">
+                        Customer name
+                    </label>
+
+
+
+
+                <div class="col-sm-8">
+
+
+                            <input type="text" name="name" class="form-control" id="id_name">
+
+
+
+
+
+
+
+
+
+
+                </div>
+
+        </div>
+
+
+
+
+
+
+
+
+
+
+        <div class="form-group row">
+
+
+
+                    <label for="id_product_title" class="col-sm-4 col-form-label">
+                        Product name
+                    </label>
+
+
+
+
+                <div class="col-sm-8">
+
+
+                            <input type="text" name="product_title" class="form-control" id="id_product_title">
+
+
+
+
+
+
+
+
+
+
+                </div>
+
+        </div>
+
+
+
+
+
+
+
+
+
+
+        <div class="form-group row">
+
+
+
+                    <label for="id_upc" class="col-sm-4 col-form-label">
+                        UPC
+                    </label>
+
+
+
+
+                <div class="col-sm-8">
+
+
+                            <input type="text" name="upc" class="form-control" id="id_upc">
+
+
+
+
+
+
+
+
+
+
+                </div>
+
+        </div>
+
+
+
+
+
+
+
+
+
+
+        <div class="form-group row">
+
+
+
+                    <label for="id_partner_sku" class="col-sm-4 col-form-label">
+                        Partner SKU
+                    </label>
+
+
+
+
+                <div class="col-sm-8">
+
+
+                            <input type="text" name="partner_sku" class="form-control" id="id_partner_sku">
+
+
+
+
+
+
+
+
+
+
+                </div>
+
+        </div>
+
+
+
+
+
+
+
+
+
+
+        <div class="form-group row">
+
+
+
+                    <label for="id_status" class="col-sm-4 col-form-label">
+                        Status
+                    </label>
+
+
+
+
+                <div class="col-sm-8">
+
+
+                            <select name="status" class="form-control select2-hidden-accessible" id="id_status" data-select2-id="id_status" style="width: 100%;" tabindex="-1" aria-hidden="true">
+  <option value="" selected="" data-select2-id="2">---------</option>
+
+</select><span class="select2 select2-container select2-container--default" dir="ltr" data-select2-id="1" style="width: 100%;"><span class="selection"><span class="select2-selection select2-selection--single" role="combobox" aria-haspopup="true" aria-expanded="false" tabindex="0" aria-disabled="false" aria-labelledby="select2-id_status-container"><span class="select2-selection__rendered" id="select2-id_status-container" role="textbox" aria-readonly="true" title="---------">---------</span><span class="select2-selection__arrow" role="presentation"><b role="presentation"></b></span></span></span><span class="dropdown-wrapper" aria-hidden="true"></span></span>
+
+
+
+
+
+
+
+
+
+
+                </div>
+
+        </div>
+
+
+
+
+
+
+
+
+
+
+        <div class="form-group row">
+
+
+
+                    <label for="id_date_from" class="col-sm-4 col-form-label">
+                        Date from
+                    </label>
+
+
+
+
+                <div class="col-sm-8">
+
+
+                            <div class="form-inline">
+    <div class="input-group date" id="wrapper_for_id_date_from" data-oscarwidget="date" data-dateformat="YYYY-MM-DD" data-target-input="nearest">
+        <input type="text" name="date_from" class="form-control" id="id_date_from" data-inputmask="'alias': 'datetime', 'inputFormat': 'yyyy-mm-dd'" inputmode="numeric">
+
+        <div class="input-group-append" data-toggle="datetimepicker" data-target="#wrapper_for_id_date_from">
+            <div class="input-group-text">
+                <i class="far fa-calendar-alt"></i>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
+
+
+
+
+
+
+
+                </div>
+
+        </div>
+
+
+
+
+
+
+
+
+
+
+        <div class="form-group row">
+
+
+
+                    <label for="id_date_to" class="col-sm-4 col-form-label">
+                        Date to
+                    </label>
+
+
+
+
+                <div class="col-sm-8">
+
+
+                            <div class="form-inline">
+    <div class="input-group date" id="wrapper_for_id_date_to" data-oscarwidget="date" data-dateformat="YYYY-MM-DD" data-target-input="nearest">
+        <input type="text" name="date_to" class="form-control" id="id_date_to" data-inputmask="'alias': 'datetime', 'inputFormat': 'yyyy-mm-dd'" inputmode="numeric">
+
+        <div class="input-group-append" data-toggle="datetimepicker" data-target="#wrapper_for_id_date_to">
+            <div class="input-group-text">
+                <i class="far fa-calendar-alt"></i>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
+
+
+
+
+
+
+
+                </div>
+
+        </div>
+
+
+
+
+
+
+
+
+
+
+        <div class="form-group row">
+
+
+
+                    <label for="id_voucher" class="col-sm-4 col-form-label">
+                        Coupon code
+                    </label>
+
+
+
+
+                <div class="col-sm-8">
+
+
+                            <input type="text" name="voucher" class="form-control" id="id_voucher">
+
+
+
+
+
+
+
+
+
+
+                </div>
+
+        </div>
+
+
+
+
+
+
+
+
+
+
+        <div class="form-group row">
+
+
+
+                    <label for="id_payment_method" class="col-sm-4 col-form-label">
+                        Payment method
+                    </label>
+
+
+
+
+                <div class="col-sm-8">
+
+
+                            <select name="payment_method" class="form-control select2-hidden-accessible" id="id_payment_method" data-select2-id="id_payment_method" style="width: 100%;" tabindex="-1" aria-hidden="true">
+  <option value="" selected="" data-select2-id="4">---------</option>
+
+</select><span class="select2 select2-container select2-container--default" dir="ltr" data-select2-id="3" style="width: 100%;"><span class="selection"><span class="select2-selection select2-selection--single" role="combobox" aria-haspopup="true" aria-expanded="false" tabindex="0" aria-disabled="false" aria-labelledby="select2-id_payment_method-container"><span class="select2-selection__rendered" id="select2-id_payment_method-container" role="textbox" aria-readonly="true" title="---------">---------</span><span class="select2-selection__arrow" role="presentation"><b role="presentation"></b></span></span></span><span class="dropdown-wrapper" aria-hidden="true"></span></span>
+
+
+
+
+
+
+
+
+
+
+                </div>
+
+        </div>
+
+
+
+
+
+
+
+
+
+
+        <div class="form-group row">
+
+
+
+                    <label for="id_response_format" class="col-sm-4 col-form-label">
+                        Get results as
+                    </label>
+
+
+
+
+                <div class="col-sm-8 form-check">
+
+
+                            <ul id="id_response_format" class="form-check-input position-static controls mt-2">
+    <li><label for="id_response_format_0"><input type="radio" name="response_format" value="html" class="form-check-input position-static controls mt-2" id="id_response_format_0">
+ HTML</label>
+
+</li>
+    <li><label for="id_response_format_1"><input type="radio" name="response_format" value="csv" class="form-check-input position-static controls mt-2" id="id_response_format_1">
+ CSV</label>
+
+</li>
+</ul>
+
+
+
+
+
+
+
+
+
+
+                </div>
+
+        </div>
+
+
+
+
+
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <a href="#" class="btn btn-secondary" data-dismiss="modal">Close</a>
+                    <button type="submit" class="btn btn-primary" data-loading-text="Searching...">Search</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+
+
+    </div>
+
+
+        <form method="post" class="order_table" id="orders_form">
+            <input type="hidden" name="csrfmiddlewaretoken" value="FoO2d4l1RMqCWcY3ifzk1kpfznoxvmJ4jus1qSDm2eQ0KHPPTF7lXUHzXuZUojYs">
+
+
+            <table class="table table-striped table-bordered table-hover">
+                <caption>
+                    <h3 class="float-left"><i class="fas fa-shopping-cart"></i>
+
+                        All Orders
+
+                    </h3>
+                    <div class="float-right">
+                        <div class="form-inline">
+                            <label>Download selected orders as a CSV</label>
+                            <button type="submit" class="btn btn-primary" name="action" value="download_selected_orders" data-loading-text="Submitting..." fdprocessedid="oljos">Download</button>
+                        </div>
+                    </div>
+                </caption>
+
+                <thead>
+                    <tr>
+                        <th><input type="checkbox" style="margin-right: 5px; vertical-align: top;"></th>
+                        <th><a href="/dashboard/orders/?sort=number">Order number</a></th>
+                        <th><a href="/dashboard/orders/?sort=total_incl_tax">Total inc tax</a></th>
+                        <th>Number of items</th>
+                        <th>Status</th>
+                        <th>Customer</th>
+                        <th>Shipping address</th>
+                        <th>Billing address</th>
+                        <th>Date of purchase</th>
+
+<th></th><th><a href="/dashboard/orders/?sort=total_incl_tax">Total inc tax</a></th>
+                    </tr>
+                </thead>
+                <tbody>
+
+                    <tr>
+                        <td><input type="checkbox" name="selected_order" class="selected_order" value="2"></td>
+                        <td><a href="/dashboard/orders/100006/">100006</a></td>
+                        <td>£0.00</td>
+                        <td>1</td>
+                        <td>-</td>
+                        <td>
+
+                                <a href="/dashboard/users/1/">-</a>
+
+                        </td>
+                        <td>Niv Doron, Derech HaBesamim 3, Derech HaBesamim 3, Ganey Tikva, Israel, 5591897, Israel</td>
+                        <td>-</td>
+                        <td>June 14, 2023, 7:22 p.m.</td>
+                        <td>
+                            <a class="btn btn-secondary" href="/dashboard/orders/100006/">View</a>
+                        </td>
+                        <td>£0.00</td>
+                    </tr>
+
+                    <tr>
+                        <td><input type="checkbox" name="selected_order" class="selected_order" value="1"></td>
+                        <td><a href="/dashboard/orders/100001/">100001</a></td>
+                        <td>£0.00</td>
+                        <td>1</td>
+                        <td>-</td>
+                        <td>
+
+                                <a href="/dashboard/users/1/">-</a>
+
+                        </td>
+                        <td>Niv Doron, Derech HaBesamim 3, Derech HaBesamim 3, Ganey Tikva, Israel, 5591897, Israel</td>
+                        <td>-</td>
+                        <td>June 14, 2023, 9:17 a.m.</td>
+                        <td>
+                            <a class="btn btn-secondary" href="/dashboard/orders/100001/">View</a>
+                        </td>
+                    </tr>
+
+                </tbody>
+            </table>
+
+
+                <div class="card card-body bg-light">
+                    <h3><i class="fas fa-exclamation-circle"></i> Change order status:</h3>
+
+                        This order can't have its status changed.
+
+                </div>
+
+
+
+
+
+
+
+        </form>
+
+
+
+
+            </div>
+        </div>
+    </div><!-- /container -->
+
+
+
+
+
+            <!-- jQuery -->
+            <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+            <script>window.jQuery || document.write('<script src="/static/oscar/js/jquery/jquery.min.js"><\/script>')</script>
+
+
+
+
+    <!-- Twitter Bootstrap -->
+    <script src="/static/oscar/js/bootstrap4/bootstrap.bundle.min.js"></script>
+    <!-- Oscar -->
+    <script src="/static/oscar/js/oscar/ui.js"></script>
+
+
+
+
+
+
+
+    <script src="/static/oscar/js/mousewheel/jquery.mousewheel.js"></script>
+    <script src="/static/oscar/js/bootstrap4-datetimepicker/moment-with-locales.min.js"></script>
+    <script src="/static/oscar/js/bootstrap4-datetimepicker/tempusdominus-bootstrap-4.min.js"></script>
+    <script src="/static/oscar/js/inputmask/jquery.inputmask.min.js"></script>
+    <script src="/static/oscar/js/select2/select2.min.js"></script>
+    <script src="/static/oscar/js/jquery-sortable/jquery-sortable-min.js"></script>
+    <script src="/static/oscar/js/oscar/dashboard.js"></script>
+    <script src="/static/oscar/js/oscar/RelatedObjectLookups.js"></script>
+    <script src="/static/oscar/js/tinymce/tinymce.min.js"></script>
+    <script src="/static/oscar/js/tinymce/jquery.tinymce.min.js"></script>
+
+
+
+        <script>
+            $(function() {
+
+
+
+
+    // Javascript to enable link to tab
+    var url = document.location.toString();
+    if (url.match('#')) {
+        $('.bs-docs-sidenav a[href="#' + url.split('#')[1] + '"]').tab('show');
+    }
+
+    // Change hash for page-reload
+    $('.nav-list a').on('shown.bs.tab', function (e) {
+        window.location.hash = e.target.hash;
+    });
+
+    options = {
+      'languageCode': ''
+    };
+    oscar.dashboard.init(options);
+
+        oscar.dashboard.orders.initTable();
+
+
+            });
+        </script>
+
+
+
+
+</body><grammarly-desktop-integration data-grammarly-shadow-root="true"></grammarly-desktop-integration></html>
+(% endblock %)
+

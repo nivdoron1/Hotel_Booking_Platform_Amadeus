@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>Hotel List</title>
+</head>
+<body>
+    <div id="hotell">
+        <div>
+            <h1>Find Hotels in: {{ location }}</h1>
+        </div>
+    </div>
+    <div id="hotelList">
+        {% for offer in hotel_offers.data %}
+            <h2>{{ offer.hotel.name }}</h2>
+            <p>Hotel ID: {{ offer.hotel.hotelId }}</p>
+            <p>City Code: {{ offer.hotel.cityCode }}</p>
+            <p>Location: {{ offer.hotel.latitude }}, {{ offer.hotel.longitude }}</p>
+            <h3>Available offers:</h3>
+            {% for hotel_offer in offer.offers %}
+                <p>Offer ID: {{ hotel_offer.id }}</p>
+                <p>Check-In Date: {{ hotel_offer.checkInDate }}</p>
+                <p>Check-Out Date: {{ hotel_offer.checkOutDate }}</p>
+                <p>Rate Code: {{ hotel_offer.rateCode }}</p>
+                <p>Board Type: {{ hotel_offer.boardType }}</p>
+                <p>Room Type: {{ hotel_offer.room.type }}</p>
+                <p>Room Description: {{ hotel_offer.room.description.text }}</p>
+                <p>Number of Adults: {{ hotel_offer.guests.adults }}</p>
+                <p>Price: {{ hotel_offer.price.currency }} {{ hotel_offer.price.total }}</p>
+                <p>Cancellation Deadline: {{ hotel_offer.policies.cancellations.0.deadline }}</p>
+                <p>
+                    <a href="{% url 'book' offer_id=hotel_offer.id hotel_name=offer.hotel.name price=hotel_offer.price.total %}">Continue</a>
+                </p>
+            {% endfor %}
+        {% endfor %}
+    </div>
+</body>
+</html>
+
+
+
+
+
+

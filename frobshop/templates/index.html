@@ -1,0 +1,357 @@
+<!DOCTYPE html>
+<html lang="zxx">
+{% load static %}
+<head>
+    <meta charset="UTF-8">
+    <meta name="description" content="Hotel Template">
+    <meta name="keywords" content="Hotel, unica, creative, html">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Hotel Booking</title>
+
+    <!-- Google Font -->
+    <link href="https://fonts.googleapis.com/css?family=Montserrat+Alternates:100,200,300,400,500,600,700,800,900&display=swap" rel="stylesheet">
+
+    <!-- Css Styles -->
+
+    <link rel="stylesheet" href="static/css/bootstrap.min.css" type="text/css">
+    <link rel="stylesheet" href="static/css/font-awesome.min.css" type="text/css">
+    <link rel="stylesheet" href="static/css/flaticon.css" type="text/css">
+    <link rel="stylesheet" href="static/css/owl.carousel.min.css" type="text/css">
+    <link rel="stylesheet" href="static/css/jquery-ui.min.css" type="text/css">
+    <link rel="stylesheet" href="static/css/nice-select.css" type="text/css">
+    <link rel="stylesheet" href="static/css/magnific-popup.css" type="text/css">
+    <link rel="stylesheet" href="static/css/slicknav.min.css" type="text/css">
+    <link rel="stylesheet" href="static/css/style.css" type="text/css">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <style>
+        #search-container {
+            width: auto;
+            display: flex;
+            flex-direction: column;
+            position: relative;
+        }
+
+        #location {
+                width: fit-content;
+                font-size: 12px;
+                margin-bottom: 40px;
+                height: 40px;
+            }
+
+        #results {
+                border: 1px solid #000;
+                /* max-height: 100px; */
+                overflow-y: auto;
+                /* width: 100%; */
+                position: absolute;
+                top: 100%;
+                background: #fff;
+                list-style: none;
+                padding: 0;
+                margin: 0;
+                z-index: 999;
+            }
+
+        .location-button {
+                width: 100%; /* Update the width of location-button to match the container */
+                text-align: left;
+                border: none;
+                background: none;
+                padding: 5px;
+                font-size: 10px; /* Reduce the font size */
+                max-height: 20px;
+                font-size: 10px; /* Set the font size to 10px */
+            }
+
+    </style>
+</head>
+
+<body>
+
+    <!-- Page Preloder -->
+    <div id="preloder">
+        <div class="loader"></div>
+    </div>
+    <!-- Header Section Begin -->
+    <!-- Header End -->
+    <header class="header-section">
+        <div class="container-fluid">
+            <div class="inner-header">
+                <div class="logo">
+                    <a><img src="static/img/logon.png" alt="" width = "64" height = "64"></a>
+                </div>
+                <div class="nav-right">
+                </div>
+                <nav class="main-menu mobile-menu">
+                    <ul>
+                        <li class="active"><a href="#">Home</a></li>
+                        {% if request.user.is_authenticated %}
+                        <li class="active" ><a href="{% url 'customer:summary' %}">{{ username }}</a></li>
+                        <li class="active"  ><a href="{% url 'customer:logout' %}">Logout</a></li>
+                        {% else %}
+                            <li class="active"  ><a href="{% url 'customer:register' %}">Register</a></li>
+                            <li class="active"  ><a href="{% url 'customer:login' %}">Login</a></li>
+                        {% endif %}
+                    </ul>
+                </nav>
+                <div id="mobile-menu-wrap"></div>
+            </div>
+        </div>
+    </header>
+    <!-- Hero Area Section Begin -->
+    <section class="hero-area set-bg" data-setbg="static/img/hero-bg.jpg">
+        <div class="container">
+            <div class="row">
+                <div class="col-lg-12 text-center">
+                    <div class="hero-text">
+                        <h1>book your hotel</h1>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+    <!-- Hero Area Section End -->
+
+    <!-- Search Filter Section Begin -->
+    <section class="search-filter">
+        <div class="container">
+            <div class="row">
+                <div class="col-lg-12">
+                    <form id="hotelForm" action="/get_hotel_offers" class="check-form" method="POST">
+                        {% csrf_token %}
+                        <h4>Check Availability</h4>
+                        <div id="search-container" class="location">
+                                <label for="location">location</label>
+                                <input id="location" type="text" name="location" placeholder="Search location...">
+                                <ul id="results"></ul>
+                        </div>
+                        <div class="datepicker">
+                            <p>From</p>
+                            <label for="checkInDate">Check-In Date:</label><br>
+                            <input type="date" id="checkInDate" name="checkInDate"><br>
+
+                        </div>
+                        <div class="datepicker">
+                            <p>To</p>
+                            <label for="checkOutDate">Check-Out Date:</label><br>
+                            <input type="date" id="checkOutDate" name="checkOutDate"><br>
+                        </div>
+                        <div class="room-quantity">
+                            <div class="single-quantity">
+                                <p for="adults">Adults</p>
+                                <div class="pro-qty"><input type="text" id="adults" name="adults" value="1"></div>
+                            </div>
+                            <div class="single-quantity last">
+                                <p for="roomQuantity">Rooms</p>
+                                <div class="pro-qty"><input id="roomQuantity" name="roomQuantity" type="text" value="1"></div>
+                            </div>
+                        </div>
+                        <button id="submit" type="submit">submit</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </section>
+    <!-- Search Filter Section End -->
+
+
+
+    <!-- Testimonial Section Begin -->
+    <section class="testimonial-section spad">
+        <div class="container">
+            <div class="row">
+                <div class="section-title">
+                    <h2>Guestbook</h2>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-lg-6">
+                    <div class="testimonial-item">
+                        <div class="ti-time">
+                            02 / 02 / 2019
+                        </div>
+                        <h4>We loved our stay</h4>
+                        <div class="rating">
+                            <i class="fa fa-star"></i>
+                            <i class="fa fa-star"></i>
+                            <i class="fa fa-star"></i>
+                            <i class="fa fa-star"></i>
+                            <i class="fa fa-star"></i>
+                        </div>
+                        <p>Lorem ipsum dolor sit amet.</p>
+                        <div class="ti-author">
+                            <div class="author-pic">
+                                <img src="static/img/author-1.png" alt="">
+                            </div>
+                            <div class="author-text">
+                                <h6>JOHN DOE <span>Madrid</span></h6>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-lg-6">
+                    <div class="testimonial-item">
+                        <div class="ti-time">
+                            02 / 02 / 2019
+                        </div>
+                        <h4>I will come back again</h4>
+                        <div class="rating">
+                            <i class="fa fa-star"></i>
+                            <i class="fa fa-star"></i>
+                            <i class="fa fa-star"></i>
+                            <i class="fa fa-star"></i>
+                            <i class="fa fa-star"></i>
+                        </div>
+                        <p>Ipsum dolor sit amet, consectetur adipiselit. Vivamus libero mauris, bibendum eget sapien ac,
+                            ultrices rhoncus ipsum. Donec nec sapien in urna fermentum ornare.</p>
+                        <div class="ti-author">
+                            <div class="author-pic">
+                                <img src="static/img/author-2.png" alt="">
+                            </div>
+                            <div class="author-text">
+                                <h6>Maria Smith <span>Madrid</span></h6>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+    <!-- Testimonial Section End -->
+
+
+
+    <!-- Footer Section Begin -->
+    <footer class="footer-section">
+        <div class="container">
+            <div class="row">
+                <div class="col-lg-4">
+                    <div class="footer-item">
+                        <div class="footer-logo">
+                            <a ><img src="static/img/logon.png" alt="" width = "100" height = "64"></a>
+                        </div>
+                        <p></p>
+                    </div>
+                </div>
+                <div class="col-lg-4">
+                    <div class="footer-item">
+                        <h5>Newsletter</h5>
+                        <div class="newslatter-form">
+                            <input type="text" placeholder="Your Email Here">
+                            <button type="submit">Subscribe</button>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-lg-4">
+                    <div class="footer-item">
+                        <h5>Contact Info</h5>
+                        <ul>
+                            <li><img src="static/img/placeholder.png" alt="">1525 Boring Lane,<br />Los Angeles, CA</li>
+                            <li><img src="static/img/phone.png" alt="">+1 (603)535-4592</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="copyright">
+            <div class="container">
+                <div class="row">
+                    <div class="col-lg-12">
+                        
+                        <ul>
+                            <li class="active"><a href="#">Home</a></li>
+                            <li><a href="#">About</a></li>
+                            <li><a href="#">Rooms</a></li>
+                            <li><a href="#">Facilities</a></li>
+                            <li><a href="#">News</a></li>
+                            <li><a href="#">Contact</a></li>
+                        </ul>
+                    </div>
+                </div>
+<div class="row pt-5">
+                    <div class="col-lg-12 ">
+                        <div class="small text-white text-center"><!-- Link back to Colorlib can't be removed. Template is licensed under CC BY 3.0. -->
+Copyright &copy;<script>document.write(new Date().getFullYear());</script> All rights reserved | This template is made with <i class="fa fa-heart-o" aria-hidden="true"></i> by <a href="https://colorlib.com" target="_blank">Colorlib</a>
+<!-- Link back to Colorlib can't be removed. Template is licensed under CC BY 3.0. --></div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </footer>
+    <!-- Footer Section End -->
+
+    <!-- Js Plugins -->
+    <script src="static/js/jquery-3.3.1.min.js"></script>
+    <script src="static/js/bootstrap.min.js"></script>
+    <script src="static/js/jquery.magnific-popup.min.js"></script>
+    <script src="static/js/jquery-ui.min.js"></script>
+    <script src="static/js/jquery.nice-select.min.js"></script>
+    <script src="static/js/jquery.slicknav.js"></script>
+    <script src="static/js/owl.carousel.min.js"></script>
+    <script src="static/js/main.js"></script>
+    <script>
+    $(document).ready(function(){
+        var isLocationSelected = false;
+
+        $("#location").on("input", function(){
+            var searchQuery = $(this).val();
+
+            // If search bar is empty, set isLocationSelected back to false
+            if(searchQuery.length === 0){
+                isLocationSelected = false;
+            }
+
+            if(searchQuery.length > 2 && !isLocationSelected) {
+                $.ajax({
+                    url: "/search",
+                    method: "GET",
+                    data: {
+                        'query': searchQuery
+                    },
+                    success: function(data){
+                        // Clear the list
+                        $("#results").empty();
+
+                        // Append new results
+                        for(let feature of data.features){
+                            $("#results").append(`<li><button class="location-button">${feature.properties.formatted}</button></li>`);
+                        }
+                    }
+                });
+            }
+        });
+
+        // When a location button is clicked
+        $("body").on("click", ".location-button", function() {
+            // Get the location text
+            var locationText = $(this).text();
+
+            // Put the location text in the search bar
+            $("#location").val(locationText);
+
+            // Clear the results
+            $("#results").empty();
+
+            // Stop new searches
+            isLocationSelected = true;
+        });
+    });
+    </script>
+    <script>
+        let today = new Date().toISOString().split('T')[0];
+        let tomorrow = new Date();
+        tomorrow.setDate(tomorrow.getDate() + 1);
+        let tomorrowDate = tomorrow.toISOString().split('T')[0];
+        document.getElementById('checkInDate').setAttribute('min', today);
+        document.getElementById('checkOutDate').setAttribute('min', tomorrowDate);
+        document.getElementById('checkInDate').addEventListener('change', function() {
+            let checkInDate = new Date(this.value);
+            checkInDate.setDate(checkInDate.getDate() + 1);
+            let minCheckOutDate = checkInDate.toISOString().split('T')[0];
+            document.getElementById('checkOutDate').setAttribute('min', minCheckOutDate);
+        });
+    </script>
+</body>
+</html>
