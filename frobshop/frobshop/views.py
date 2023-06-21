@@ -1,6 +1,6 @@
+from datashape import Decimal
 from django.http import JsonResponse
 import json
-
 import requests
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.views import LoginView
@@ -20,6 +20,25 @@ from .models import Product
 
 api_key = 'nc3HcfEOuEoLQ8tKgGmXemwP8XkfDKbs'
 api_secret = 'slE8rqApxZBdXCU5'
+USERNAME = None
+
+from django.shortcuts import redirect
+from django.contrib.auth.decorators import login_required
+from oscar.apps.catalogue.models import Product
+
+
+@login_required
+def add_to_basket_and_checkout(request, product_id):
+    # Get the product
+    product = Product.objects.get(id=product_id)
+    # Get the basket
+    basket = request.basket
+
+    basket.flush()
+    # Add the product to the basket
+    basket.add_product(product)
+    # Redirect to the checkout page
+    return redirect('checkout:index')  # replace 'checkout:index' with your actual checkout URL name
 
 
 class MyLoginView(LoginView):
@@ -53,11 +72,160 @@ def access_token_builder(api_key, api_secret):
     return access_token
 
 
+from oscar.apps.catalogue.models import Product
+from oscar.apps.partner.models import Partner
+from oscar.apps.catalogue.categories import create_from_breadcrumbs
+from oscar.apps.catalogue.models import ProductCategory
+import locale
+from background_task import background
+from oscar.apps.catalogue.categories import create_from_breadcrumbs
+
+
+class HandleHotel:
+    def __init__(self):
+        self.hotels_list = {}
+        self.remove_hotels(offer_id=None)
+
+    def remove_hotels(self, offer_id):
+        if offer_id is None:
+            Product.objects.all().delete()
+        elif self.hotels_list is {}:
+            pass
+        else:
+            # Get the product corresponding to the offer_id
+            product = Product.objects.get(title=offer_id)
+            # Get the hotel ID of this product
+            product_hotel = product.parent.title
+
+            # Get all parent (hotel) products
+            parent_products = Product.objects.filter(structure=Product.PARENT)
+
+            for parent_product in parent_products:
+                if parent_product.title in self.hotels_list:
+                    # If the hotel is in hotels_remove, get all its child products (offers)
+                    child_products = Product.objects.filter(parent=parent_product)
+                    for child_product in child_products:
+                        # If the offer is not in the list for this hotel in hotels_remove, delete it
+                        if child_product.title not in self.hotels_list[parent_product.title]:
+                            delete_child_product(title=child_product.title, parent_title=parent_product.title)
+                else:
+                    # If the hotel is not in hotels_remove, delete it
+                    delete_parent_product(title=parent_product.title)
+        self.hotels_list = {}
+
+
+def delete_child_product(title, parent_title):
+    try:
+        parent_product = Product.objects.get(title=parent_title, structure=Product.PARENT)
+        child_product = Product.objects.get(title=title, parent=parent_product)
+        child_product.delete()
+        print(f"Deleted child product with title {title} under parent product {parent_title}")
+    except Product.DoesNotExist:
+        print(f"Child product with title {title} under parent product {parent_title} does not exist")
+
+
+def delete_parent_product(title):
+    try:
+        product = Product.objects.get(title=title, structure=Product.PARENT)
+        product.delete()
+        print(f"Deleted parent product with title {title}")
+    except Product.DoesNotExist:
+        print(f"Parent product with title {title} does not exist")
+
+
+def add_child_product(title, description, parent_product, currency, price, partner="Default Partner"):
+    # Check if the child product already exists
+    partner, created = Partner.objects.get_or_create(name=partner)
+    child_product = None
+    if not Product.objects.filter(title=title, parent=parent_product).exists():
+        child_product = Product.objects.create(
+            title=title,
+            description=description,
+            parent=parent_product,
+            structure=Product.CHILD
+        )
+
+        # Generate SKU from the product title
+        sku = title.replace(" ", "_").upper()
+
+        # Create a stock record for the child product
+        stock_record = StockRecord.objects.create(
+            product=child_product,
+            partner=partner,
+            partner_sku=sku,  # Replace with your unique SKU
+            price_currency=currency,  # Replace with your preferred currency
+            price=price,  # Replace with your price
+            num_in_stock=1,  # Replace with your stock quantity
+            num_allocated=0,  # Replace with your allocated stock quantity
+            low_stock_threshold=1,  # Replace with your low stock threshold
+        )
+        stock_record.save()
+        # Fetch the price and availability using the strategy framework
+        strategy = Selector().strategy(request=None, user=None)
+        info = strategy.fetch_for_product(child_product)
+    else:
+        child_product = Product.objects.get(title=title, parent=parent_product)
+    return child_product
+
+
+def add_parent_product(title, description, category, partner="Default Partner"):
+    partner, created = Partner.objects.get_or_create(name=partner)
+    print(f"Partner: {partner}, Created: {created}")
+    parent_product = None
+    # Check if the parent product already exists
+    if not Product.objects.filter(title=title).exists():
+        # Create the parent product
+        print(f"Creating product with category ID: {category.id}")
+        parent_product = Product.objects.create(title=title,
+                                                description=description,
+                                                product_class_id=3,
+                                                structure=Product.PARENT)  # Use appropriate product class id
+
+        print(f"Product created: {parent_product}")
+        product_category = ProductCategory.objects.create(product=parent_product, category=category)
+        print(f"ProductCategory created: {product_category}")
+    else:
+        parent_product = Product.objects.get(title=title)
+        print(f"Found existing product: {parent_product}")
+
+    return parent_product
+
+
+handel = HandleHotel()
+handel.remove_hotels(offer_id=None)
+
+
+@background(schedule=600)  # Schedule task to run after 600 seconds i.e. 10 minutes
+def check_out(request):
+    # Code to add products...
+
+    # Schedule the task
+    handel.remove_hotels(offer_id=None)
+
+    # Redirect to index
+    return redirect('index')  # Assuming 'index' is the name of your homepage view
+
+
+@background(schedule=5)  # Schedule task to run after 600 seconds i.e. 10 minutes
+def hotels_pick(request):
+    # Code to add products...
+
+    # Schedule the task
+    handel.remove_hotels(offer_id=None)
+
+    # Redirect to index
+    return redirect('index')  # Assuming 'index' is the name of your homepage view
+
+
 access_token = access_token_builder(api_key=api_key, api_secret=api_secret)
 
 
 class AccountRegistrationView(CoreAccountRegistrationView):
     form_class = EmailUserCreationForm
+
+
+def create_new_category(category_name):
+    return create_from_breadcrumbs(category_name)
 
 
 @login_required(login_url='/accounts/login/')
@@ -97,6 +265,13 @@ def confirm(request):
     return render(request, 'confirmation.html', {'booking_data': booking_response})
 
 
+def get_username(request):
+    username = None
+    if request.user.is_authenticated:
+        username = request.user.email
+    return username
+
+
 @require_http_methods(["POST"])
 def get_hotel_offers(request):
     # cityCode = request.form['cityCode']
@@ -107,12 +282,19 @@ def get_hotel_offers(request):
     request.session["roomQuantity"] = roomQuantity
     location = request.POST['location']
     lat, lng = get_geocode(location)
-    hotel_offers = get_hotel_offer_list(lat=lat, lng=lng, checkInDate=checkInDate,
+    username = get_username(request=request)
+    category = create_new_category(username)
+
+    handel.remove_hotels(offer_id=None)
+    hotel_offers = get_hotel_offer_list(lat=lat, lng=lng, checkInDate=checkInDate, category=category,
                                         checkOutDate=checkOutDate, adults=adults, roomQuantity=roomQuantity)
-    return render(request, 'hotels.html', {'hotel_offers': hotel_offers, 'lat': lat, 'lng': lng, 'location': location,
-                                           'roomQuantity': roomQuantity})
+    user, domain = username.split('@')
+    dom, dotdomain = domain.split('.')
+    user = user + dom + dotdomain
+    return redirect(f'/catalogue/category/{user}_{category.id}/', hotel_offers)
 
 
+@login_required(login_url='/accounts/login/')
 @require_http_methods(["GET", "POST"])
 def index(request):
     if request.user.is_authenticated:
@@ -123,7 +305,6 @@ def index(request):
         }
     else:
         context = {}
-
     return render(request, 'index.html', context)
 
 
@@ -146,7 +327,13 @@ def search(request):
 
 @require_http_methods(["GET"])
 def hotels(request):
-    return render(request, 'hotels.html')
+    username = get_username(request=request)
+    user, domain = username.split('@')
+    dom, dotdomain = domain.split('.')
+    user = user + dom + dotdomain
+    category = create_new_category(category_name=user)
+
+    return render(request, f'/catalogue/category/{user}_{category.id}/')
 
 
 def get_hotel_city_list(cityCode):
@@ -225,10 +412,9 @@ def get_hotel_geo_list(latitude, longitude):
         print("Failed to get data:", response.status_code)
 
 
-def get_hotel_offer_list(lat, lng, checkInDate, checkOutDate, adults, roomQuantity, paymentPolicy="NONE",
+def get_hotel_offer_list(lat, lng, category, checkInDate, checkOutDate, adults, roomQuantity, paymentPolicy="NONE",
                          bestRateOnly="false"):
     url = "https://test.api.amadeus.com/v3/shopping/hotel-offers"
-
     headers = {
         "Authorization": f"Bearer {access_token}",
         "Content-Type": "application/json"
@@ -252,8 +438,35 @@ def get_hotel_offer_list(lat, lng, checkInDate, checkOutDate, adults, roomQuanti
     print(response.url)
     if response.status_code == 200:
         data = response.json()
-        for dat in data['data']:
-            add_parent_product(dat['hotel']['hotelId'], description="!")
+        for item in data['data']:
+            hotel_id = item['hotel']['name']
+            handel.hotels_list[hotel_id] = []
+            hotel_details = {
+                'name': item['hotel']['name'],
+                'hotelId': item['hotel']['hotelId'],
+                'cityCode': item['hotel']['cityCode'],
+            }
+            parent_description = json.dumps(hotel_details, indent=4)
+            parent_product = add_parent_product(title=hotel_id, description=parent_description, category=category)
+            for offer in item['offers']:
+                offer_id = offer['id']
+                handel.hotels_list[hotel_id].append(offer_id)
+                hotel_data = {
+                    'checkInDate': offer.get('checkInDate', None),
+                    'checkOutDate': offer.get('checkOutDate', None),
+                    'rateCode': offer.get('rateCode', None),
+                    'rateFamilyEstimated': offer.get('rateFamilyEstimated', None),
+                    'room': offer.get('room', None),
+                    'guests': offer.get('guests', None),
+                    'price': offer.get('price', None),
+                    'policies': offer.get('policies', None),
+                    'self': offer.get('self', None)
+                }
+                hotel_description = json.dumps(hotel_data, indent=4)  # Convert the hotel data to a JSON string
+                currency = hotel_data['price']['currency'] if hotel_data.get('price') else None
+                total_price = locale.atof(hotel_data['price']['total']) if hotel_data.get('price') else 0
+                add_child_product(parent_product=parent_product, description=hotel_description,
+                                  price=total_price, currency=currency, title=offer_id)
         return data
     else:
         print("Failed to get data:", response.status_code)
@@ -296,67 +509,12 @@ def post_booking(offer_id, title, first_name, last_name, phone, email, method, v
         }
     }
     response = requests.post(url, headers=headers, data=json.dumps(data))
-
     if response.status_code == 200 or response.status_code == 201:
+        handel.remove_hotels(offer_id=offer_id)
         return response.json()
     else:
         print("Failed to post booking:", response.status_code, response.text)
         return None
-
-
-def add_parent_product(title, description, partner="Default Partner"):
-    partner, created = Partner.objects.get_or_create(name=partner)
-    parent_product = None
-    # Check if the parent product already exists
-    if not Product.objects.filter(title=title).exists():
-        # Create the parent product
-        parent_product = Product.objects.create(title=title,
-                                                description=description,
-                                                product_class_id=3,
-                                                structure=Product.PARENT)  # Use appropriate product class id
-
-        # Get the category to which you want to add the products
-        category = Category.objects.get(name='HOTELS')  # Get category with name 'HOTELS'
-        product_category = ProductCategory.objects.create(product=parent_product, category=category)
-    else:
-        parent_product = Product.objects.get(title=title)
-
-    return parent_product
-
-
-def add_child_product(title, description, parent_product, currency, price, partner="Default Partner"):
-    # Check if the child product already exists
-    partner, created = Partner.objects.get_or_create(name=partner)
-    child_product = None
-    if not Product.objects.filter(title=title, parent=parent_product).exists():
-        child_product = Product.objects.create(
-            title=title,
-            description=description,
-            parent=parent_product,
-            structure=Product.CHILD
-        )
-
-        # Generate SKU from the product title
-        sku = title.replace(" ", "_").upper()
-
-        # Create a stock record for the child product
-        stock_record = StockRecord.objects.create(
-            product=child_product,
-            partner=partner,
-            partner_sku=sku,  # Replace with your unique SKU
-            price_currency=currency,  # Replace with your preferred currency
-            price=price,  # Replace with your price
-            num_in_stock=1,  # Replace with your stock quantity
-            num_allocated=0,  # Replace with your allocated stock quantity
-            low_stock_threshold=1,  # Replace with your low stock threshold
-        )
-        stock_record.save()
-        # Fetch the price and availability using the strategy framework
-        strategy = Selector().strategy(request=None, user=None)
-        info = strategy.fetch_for_product(child_product)
-    else:
-        child_product = Product.objects.get(title=title, parent=parent_product)
-    return child_product
 
 
 # Define parent product details

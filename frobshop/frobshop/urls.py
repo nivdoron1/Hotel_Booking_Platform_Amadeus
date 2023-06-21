@@ -24,14 +24,16 @@ from .views import *
 from .views import MyLoginView
 from django.conf import settings
 from django.conf.urls.static import static
+from .views import add_to_basket_and_checkout
+
 
 urlpatterns = [
-                  #path('', views.index, name='home'),  # Move this to the top
+                  # path('', views.index, name='home'),  # Move this to the top
                   path('i18n/', include('django.conf.urls.i18n')),
                   path('admin/', admin.site.urls),
                   path('', index, name='index'),
                   path('catalogue/', RedirectView.as_view(url='/'), name='home'),
-                  #path('catalogue/', RedirectView.as_view(url='/accounts'), name='home'),
+                  # path('catalogue/', RedirectView.as_view(url='/accounts'), name='home'),
                   path('', include(apps.get_app_config('oscar').urls[0])),
                   path('dashboard/accounts/', apps.get_app_config('accounts_dashboard').urls),
                   path('book', views.book, name='book'),
@@ -39,9 +41,14 @@ urlpatterns = [
                   path('search', views.search, name='search'),
                   path('hotels', views.hotels, name='hotels'),
                   path('get_hotel_offers', views.get_hotel_offers, name='get_hotel_offers'),
+                  path('catalogue/category/<str:username>_<int:category_id>/', views.get_hotel_offers,
+                       name='get_hotel_offers'),
                   path('book/<str:offer_id>/<str:hotel_name>/<str:price>/', views.book, name='book'),
                   path('', home, name='home'),
                   path('accounts/login/', MyLoginView.as_view(), name='login'),
+                  path('add_to_basket_and_checkout/<int:product_id>/', add_to_basket_and_checkout,
+                       name='add_to_basket_and_checkout'),
+
                   # path('shipping-address/', ShippingAddressView.as_view(), name='shipping-address'),
                   # path('shipping-method/', ShippingMethodView.as_view(), name='shipping-method'),
                   # path('payment-details/', PaymentDetailsView.as_view(), name='payment-details'),

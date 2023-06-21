@@ -66,7 +66,7 @@ INSTALLED_APPS = [
     'django.contrib.flatpages',
     'oscar.config.Shop',
     'oscar.apps.analytics.apps.AnalyticsConfig',
-    'oscar.apps.checkout.apps.CheckoutConfig',  # remove this
+    'oscar.apps.checkout.apps.CheckoutConfig',
     'oscar.apps.address.apps.AddressConfig',
     'oscar.apps.shipping.apps.ShippingConfig',
     'oscar.apps.catalogue.apps.CatalogueConfig',
@@ -101,8 +101,12 @@ INSTALLED_APPS = [
     'django_tables2',
     'oscar_accounts.apps.AccountsConfig',
     'oscar_accounts.dashboard.apps.AccountsDashboardConfig',
+    'background_task',
 ]
 SITE_ID = 1
+PAYPAL_CLIENT_ID = 'AUW-BPbcuymksaQJB929pD3DpTIUsHNVk47ZIdZthU0Q3TWeqWJjqzUo5V8Uorx_zjM6z125xUFR2vVu'
+PAYPAL_CLIENT_SECRET = 'EHP6p9yFHKkLngA4WU29k_LPK5uAxjkl7eESHN6sB0yB7B3nvrChKBna1tXSpFWMj_U-l5fZiSBm_PXQ'
+PAYPAL_API_SANDBOX_MODE = True  # Use 'False' when going to production
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
@@ -125,6 +129,7 @@ TEMPLATES = [
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
         'DIRS': [
             location('templates'),
+
         ],
         'APP_DIRS': True,
         'OPTIONS': {
