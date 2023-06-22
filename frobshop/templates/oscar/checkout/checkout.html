@@ -34,7 +34,17 @@
                         {% trans "Change" %}
                       </a>
                     </h3>
-                    <p>{% trans "Payment details to go here" %}</p>
+                        <p>
+                          {% trans "Title: " %}{{ payment.title }}
+                          {% trans "First Name: " %}{{ payment.first_name }}
+                          {% trans "Last Name: " %}{{ payment.last_name }}
+                          {% trans "Phone: " %}{{ payment.phone }}
+                          {% trans "Email: " %}{{ payment.email }}
+                          {% trans "Payment Method: " %}{{ payment.method }}
+                          {% trans "Card Vendor Code: " %}{{ payment.vendor_code }}
+                          {% trans "Card Number: " %}{{ payment.card_number }}
+                          {% trans "Card Expiry Date: " %}{{ payment.expiry_date }}
+                        </p>
                 </div>
             </div>
         {% endblock payment_method %}
@@ -42,12 +52,6 @@
 
     {% block order_contents %}
         <div class="sub-header">
-            {% block order_contents_actions %}
-                <a href="{% url 'basket:summary' %}" class="float-right">
-                    {% trans "Edit order contents" %}
-                </a>
-            {% endblock %}
-
             <h2>{% trans "Order contents" %}</h2>
         </div>
         <div class="basket-title">

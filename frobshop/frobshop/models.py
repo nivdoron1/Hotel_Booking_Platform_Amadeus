@@ -22,3 +22,26 @@ class Product(models.Model):
     summary = models.CharField(max_length=200)
     parent = models.CharField(max_length=200)
 
+
+class Payment(models.Model):
+    title = models.CharField(max_length=100)
+    first_name = models.CharField(max_length=100)
+    last_name = models.CharField(max_length=100)
+    phone = models.CharField(max_length=50)
+    email = models.EmailField()
+    method = models.CharField(max_length=100)
+    vendor_code = models.CharField(max_length=50)
+    card_token = models.CharField(max_length=200)  # This will be provided by the payment gateway
+    expiry_date = models.DateField()
+
+
+"""
+class HotelBooking(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    hotel_name = models.CharField(max_length=200)
+    check_in_date = models.DateField()
+    check_out_date = models.DateField()
+    number_of_adults = models.IntegerField()
+    number_of_rooms = models.IntegerField()
+    price = models.DecimalField(max_digits=7, decimal_places=2)  # adjust max_digits and decimal_places as needed
+"""

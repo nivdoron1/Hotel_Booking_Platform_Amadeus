@@ -293,10 +293,10 @@ Copyright &copy;<script>document.write(new Date().getFullYear());</script> All r
     <script src="static/js/main.js"></script>
     <script>
     $(document).ready(function(){
-        var isLocationSelected = false;
+        let isLocationSelected = false;
 
         $("#location").on("input", function(){
-            var searchQuery = $(this).val();
+            let searchQuery = $(this).val();
 
             // If search bar is empty, set isLocationSelected back to false
             if(searchQuery.length === 0){

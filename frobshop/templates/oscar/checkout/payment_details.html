@@ -1,0 +1,46 @@
+{% extends "oscar/checkout/checkout.html" %}
+{% load i18n %}
+
+{% block title %}
+    {% trans "Payment details" %} | {{ block.super }}
+{% endblock %}
+
+{% block checkout_nav %}
+    {% include 'oscar/checkout/nav.html' with step=3 %}
+{% endblock %}
+
+{% block checkout_title %}{% trans "Enter payment details" %}{% endblock %}
+
+{% block order_contents %}{% endblock %}
+{% block shipping_address %}{% endblock %}
+{% block shipping_method %}{% endblock %}
+{% block payment_method %}{% endblock %}
+
+{% block payment_details %}
+    {% block payment_details_content %}
+        <p>{% trans "This page needs implementing within your project.  You may want to use one of Oscar's payment gateway libraries:" %}</p>
+        <ul>
+            <li><a href="https://github.com/django-oscar/django-oscar-paypal">django-oscar-paypal</a></li>
+            <li><a href="https://github.com/django-oscar/django-oscar-adyen">django-oscar-adyen</a></li>
+            <li><a href="https://github.com/django-oscar/django-oscar-docdata">django-oscar-docdata</a></li>
+            <li><a href="https://github.com/django-oscar/django-oscar-accounts">django-oscar-accounts</a></li>
+        </ul>
+        <h2>Booking for {{ hotel_name }}</h2>
+            <p>Offer ID: {{ offer_id }}</p>
+            <p>Price: {{ price }}</p>
+            <form action="/confirm" method="post">
+                {% csrf_token %}
+                <input type="hidden" name="offer_id" value="{{ offer_id }}">
+                <p>Title: <input type="text" name="title" required></p>
+                <p>First Name: <input type="text" name="first_name" required></p>
+                <p>Last Name: <input type="text" name="last_name" required></p>
+                <p>Phone: <input type="text" name="phone" required></p>
+                <p>Email: <input type="email" name="email" required></p>
+                <p>Payment Method: <input type="text" name="method" required></p>
+                <p>Card Vendor Code: <input type="text" name="vendor_code" required></p>
+                <p>Card Number: <input type="text" name="card_number" required></p>
+                <p>Card Expiry Date: <input type="text" name="expiry_date" required></p>
+                <input type="submit" value="Book">
+        <a id="view_preview" href="{% url 'checkout:preview' %}" class="btn btn-primary btn-lg">{% trans "Continue" %}</a>
+    {% endblock payment_details_content %}
+{% endblock payment_details %}

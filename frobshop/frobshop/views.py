@@ -231,7 +231,7 @@ def create_new_category(category_name):
 @login_required(login_url='/accounts/login/')
 @require_http_methods(["GET"])
 def book(request, offer_id, hotel_name, price):
-    price = float(price) * float(request.session["roomQuantity"])
+    # price = float(price) * float(request.session["roomQuantity"])
     request.session['offer_id'] = offer_id
     return render(request, 'book.html', {'offer_id': offer_id, 'hotel_name': hotel_name, 'price': price})
 
@@ -435,7 +435,6 @@ def get_hotel_offer_list(lat, lng, category, checkInDate, checkOutDate, adults, 
         "bestRateOnly": bestRateOnly,
     }
     response = requests.get(url, headers=headers, params=params)
-    print(response.url)
     if response.status_code == 200:
         data = response.json()
         for item in data['data']:
@@ -464,7 +463,8 @@ def get_hotel_offer_list(lat, lng, category, checkInDate, checkOutDate, adults, 
                 }
                 hotel_description = json.dumps(hotel_data, indent=4)  # Convert the hotel data to a JSON string
                 currency = hotel_data['price']['currency'] if hotel_data.get('price') else None
-                total_price = locale.atof(hotel_data['price']['total']) if hotel_data.get('price') else 0
+                total_price = locale.atof(hotel_data['price']['total']) * float(roomQuantity) if hotel_data.get(
+                    'price') else 0
                 add_child_product(parent_product=parent_product, description=hotel_description,
                                   price=total_price, currency=currency, title=offer_id)
         return data
@@ -517,70 +517,84 @@ def post_booking(offer_id, title, first_name, last_name, phone, email, method, v
         return None
 
 
-# Define parent product details
+def hotel_auto_complete(name):
+    headers = {
+        "Authorization": f"Bearer {access_token}",
+    }
+    url = 'https://test.api.amadeus.com/v1/reference-data/locations/hotel'
+    params = {
+        "keyword": name,
+        "subType": 'HOTEL_GDS',
+        "max": 5,
+    }
+    response = requests.get(url, headers=headers, params=params)
+    if response.status_code == 200:
+        return response.json()
+
+    return print(f"Failed to hotel_auto_complete: {response.status_code}, {response.text}")
+
+
+@require_http_methods(["GET"])
+def hotel_search_auto_complete(request):
+    search_query = request.GET.get('query', '')
+    print("this is the search query:")
+    print(search_query)
+    data_list = []
+    if len(search_query) >= 3:
+        data = hotel_auto_complete(search_query)
+        for dat in data["data"]:
+            data_list.append(dat["name"])
+            print(dat["name"])
+    return JsonResponse({'features': data_list})
+
+
 """
-parent_product_title = "w"
-parent_product_description = "This is a new product"
+from django.contrib.auth.decorators import login_required
+from django.views.decorators.http import require_http_methods
+from .models import HotelBooking
 
-# Get or create a partner
-partner, created = Partner.objects.get_or_create(name="Default Partner")
-parent_product = None
-# Check if the parent product already exists
-if not Product.objects.filter(title=parent_product_title).exists():
-    # Create the parent product
-    parent_product = Product.objects.create(title=parent_product_title,
-                                            description=parent_product_description,
-                                            product_class_id=3,
-                                            structure=Product.PARENT)  # Use appropriate product class id
+@login_required
+@require_http_methods(["POST"])
+def create_booking(request):
+    # Extract data from form submission
+    hotel_name = request.POST.get('location')
+    check_in_date = request.POST.get('checkInDate')
+    check_out_date = request.POST.get('checkOutDate')
+    number_of_adults = request.POST.get('adults')
+    number_of_rooms = request.POST.get('roomQuantity')
+    price = request.POST.get('price')
 
-    # Get the category to which you want to add the products
-    category = Category.objects.get(name='HOTELS')  # Get category with name 'HOTELS'
-    product_category = ProductCategory.objects.create(product=parent_product, category=category)
-    # Create child products
-    """
-# parent_product = add_parent_product(title="kdlkdldklkl", description="flf", partner=partner)
-# print(parent_product)
-# add_child_product(title="child", description="fklf", parent_product=parent_product, currency='GBP', price=10)
-
-
-"""for i in range(3):
-    child_product_title = f"Child Product {i+2}"
-    child_product_description = f"This is child product {i+1}"
-    # child_product = None
-    add_child_product(title=child_product_title, description=child_product_description, parent_product=parent_product,
-                      currency='GBP', price=10, partner=partner)"""
-"""if not Product.objects.filter(title=child_product_title,parent=parent_product).exists():
-    child_product = Product.objects.create(
-        title=child_product_title,
-        description=child_product_description,
-        parent=parent_product,
-        structure=Product.CHILD
+    # Create new HotelBooking
+    booking = HotelBooking(
+        user=request.user,
+        hotel_name=hotel_name,
+        check_in_date=check_in_date,
+        check_out_date=check_out_date,
+        number_of_adults=number_of_adults,
+        number_of_rooms=number_of_rooms,
+        price=price
     )
+    try:
+        booking.save()
+        return JsonResponse({
+            'email': request.user.email,
+            'hotel_name': booking.hotel_name,
+            'check_in_date': booking.check_in_date,
+            'check_out_date': booking.check_out_date,
+            'number_of_adults': booking.number_of_adults,
+            'number_of_rooms': booking.number_of_rooms,
+            'price': booking.price,
+        })
+    except Exception as e:
+        return JsonResponse({'error': str(e)}, status=500)
+"""
 
-    # Generate SKU from the product title
-    sku = child_product_title.replace(" ", "_").upper()
-
-    # Create a stock record for the child product
-    stock_record = StockRecord.objects.create(
-        product=child_product,
-        partner=partner,
-        partner_sku=sku,  # Replace with your unique SKU
-        price_currency='GBP',  # Replace with your preferred currency
-        price=100,  # Replace with your price
-        num_in_stock=50,  # Replace with your stock quantity
-        num_allocated=0,  # Replace with your allocated stock quantity
-        low_stock_threshold=2,  # Replace with your low stock threshold
-    )
-    stock_record.save()
-    # Fetch the price and availability using the strategy framework
-    strategy = Selector().strategy(request=None, user=None)
-    info = strategy.fetch_for_product(child_product)
-    child_product.save()"""
 # URLs mapping
 
 urlpatterns = [
     path('', index, name='index'),
     path('search', search, name='search'),
+    path('hotel_search_auto_complete', hotel_search_auto_complete, name='hotel_search_auto_complete'),
     path('hotels', hotels, name='hotels'),
     path('get_hotel_offers', get_hotel_offers, name='get_hotel_offers'),
     path('book', book, name='book'),

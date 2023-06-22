@@ -39,6 +39,7 @@ urlpatterns = [
                   path('book', views.book, name='book'),
                   path('confirm', views.confirm, name='confirm'),
                   path('search', views.search, name='search'),
+                  path('hotel_search_auto_complete', views.hotel_search_auto_complete, name='hotel_search_auto_complete'),
                   path('hotels', views.hotels, name='hotels'),
                   path('get_hotel_offers', views.get_hotel_offers, name='get_hotel_offers'),
                   path('catalogue/category/<str:username>_<int:category_id>/', views.get_hotel_offers,
