@@ -1,5 +1,6 @@
 {% extends "oscar/checkout/checkout.html" %}
 {% load i18n %}
+{% load currency_filters %}  {# Don't forget to load the currency_filters if you want to display prices %}
 
 {% block title %}
     {% trans "Payment details" %} | {{ block.super }}
@@ -17,30 +18,292 @@
 {% block payment_method %}{% endblock %}
 
 {% block payment_details %}
-    {% block payment_details_content %}
-        <p>{% trans "This page needs implementing within your project.  You may want to use one of Oscar's payment gateway libraries:" %}</p>
-        <ul>
-            <li><a href="https://github.com/django-oscar/django-oscar-paypal">django-oscar-paypal</a></li>
-            <li><a href="https://github.com/django-oscar/django-oscar-adyen">django-oscar-adyen</a></li>
-            <li><a href="https://github.com/django-oscar/django-oscar-docdata">django-oscar-docdata</a></li>
-            <li><a href="https://github.com/django-oscar/django-oscar-accounts">django-oscar-accounts</a></li>
-        </ul>
-        <h2>Booking for {{ hotel_name }}</h2>
-            <p>Offer ID: {{ offer_id }}</p>
-            <p>Price: {{ price }}</p>
-            <form action="/confirm" method="post">
+ <head>
+   <meta name="viewport" content="width=device-width, initial-scale=1" />
+     <style>
+     *,@import url('https://fonts.googleapis.com/css2?family=Inter:wght@100;200;300;400;500;600;700;800;900&display=swap');
+
+
+    body {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background-color: #C1BFFA;
+      font-family: inter, sans-serif;
+    }
+
+    .container {
+      display: flex;
+      flex-direction: column;
+      align-items: flex-start;
+      padding-left: 50px;
+      padding-right: 50px;
+      padding-top: 30px;
+      padding-bottom: 30px;
+
+      margin-top: 50px;
+      margin-bottom: 80px;
+
+      position: relative;
+      width: 48vw;
+      height: auto;
+
+      border-radius: 16px;
+      background-color: white;
+
+      border: 2px solid #1B1B1B;
+      box-sizing: border-box;
+      box-shadow: 6px 6px 0px #1B1B1B;
+      border-radius: 8px;
+    }
+
+    .heading {
+      display: flex;
+      flex-direction: row;
+      align-items: center;
+    }
+
+    #exit {
+      align-self: flex-end;
+    }
+
+    h1 {
+      margin-left: 10px;
+      font-size: 2rem;
+      font-weight: 800;
+    }
+
+    label {
+      font-weight: 600;
+    }
+
+    input {
+      display: flex;
+      flex-direction: row;
+      align-items: flex-start;
+      margin-top: 10px;
+      padding: 16px 24px;
+      width: 90%;
+      height: 15%;
+      left: 1048px;
+      top: 16px;
+      background: #FFFFFF;
+      border: 2px solid #1B1B1B;
+      box-sizing: border-box;
+      border-radius: 16px;
+      transition: 0.2s;
+    }
+
+    textarea:focus, input:focus{
+      outline: none;
+      background: #F9E450;
+      border: 3px solid #1B1B1B;
+      border-radius: 16px;
+    }
+
+    .exp-cvc {
+      justify-self: center;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      width: 90%;
+    }
+
+    .expiration {
+      font-size: 0.75rem;
+      width: 50%;
+      margin-right: 20px;
+    }
+
+    .security {
+      font-size: 0.75rem;
+      width: 50%;
+      margin-left: 20px;
+    }
+
+    span {
+      padding-left: 5px;
+      cursor: pointer;
+    }
+
+    .btn {
+      background-color: #F9E450;
+      border: 2px solid #1B1B1B;
+      box-sizing: border-box;
+      border-radius: 16px;
+      padding: 16px 32px 16px 16px;
+      text-align: center;
+      font-weight: 800;
+      margin-top: 20px;
+
+      width: 141px;
+      height: 56px;
+      left: 16px;
+      top: 88px;
+
+      display: flex;
+      flex-direction: row;
+      align-items: center;
+      align-self: flex-end;
+      cursor: pointer;
+      transition: 0.16s ease-out;
+    }
+
+    .btn:hover {
+      background: #FFBB38;
+      border: 4px solid #1B1B1B;
+      box-sizing: border-box;
+      box-shadow: 0px 0px 0px 4px #C1BFFA;
+      border-radius: 16px;
+    }
+
+    #exit {
+      cursor: pointer;
+    }
+</style>
+     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/intl-tel-input@18.1.1/build/css/intlTelInput.css">
+   <script src="https://cdnjs.cloudflare.com/ajax/libs/intl-tel-input/17.0.8/js/intlTelInput.min.js"></script>
+ </head>
+
+<body>
+            <h2>Booking for {{ hotel_name }}</h2>
+            {# Here we iterate over the lines in the basket #}
+            {% for line in request.basket.all_lines %}
+                <p>Product Name: {{ line.product.title }}</p>
+                <p>Product Price: {{ line.line_price_incl_tax|currency }}</p>
+            {% endfor %}
+
+            <form action="{% url 'handle_payment' %}" method="post">
                 {% csrf_token %}
                 <input type="hidden" name="offer_id" value="{{ offer_id }}">
-                <p>Title: <input type="text" name="title" required></p>
+                <p>Title:
+                    <select name="title" required>
+                        <option value="">Select...</option>
+                        <option value="Mr">Mr</option>
+                        <option value="Mrs">Mrs</option>
+                        <option value="Ms">Ms</option>
+                    </select>
+                </p>
                 <p>First Name: <input type="text" name="first_name" required></p>
                 <p>Last Name: <input type="text" name="last_name" required></p>
-                <p>Phone: <input type="text" name="phone" required></p>
+                <p>Enter your phone number:</p>
+                <p><input id="phone" type="tel" name="phone" style="position:center"></p>
                 <p>Email: <input type="email" name="email" required></p>
-                <p>Payment Method: <input type="text" name="method" required></p>
-                <p>Card Vendor Code: <input type="text" name="vendor_code" required></p>
-                <p>Card Number: <input type="text" name="card_number" required></p>
-                <p>Card Expiry Date: <input type="text" name="expiry_date" required></p>
-                <input type="submit" value="Book">
-        <a id="view_preview" href="{% url 'checkout:preview' %}" class="btn btn-primary btn-lg">{% trans "Continue" %}</a>
-    {% endblock payment_details_content %}
+                <p>Payment Method:
+                    <select name="method" required>
+                        <option value="">Select...</option>
+                        <option value="CreditCard">CreditCard</option>
+                    </select>
+                </p>
+                <p>Card Vendor Code:
+                    <select name="vendor_code" required>
+                        <option value="">Select...</option>
+                        <option value="VI">VI</option>
+                        <option value="MC">MC</option>
+                        <option value="AE">AE</option>
+                    </select>
+                </p>
+                <p>Card Number: <input type="text" minlength="15" maxlength="16" class="card-number", name="card_number",placeholder="Card Number" required></p>
+                <p>Card Expiry Date: <input type="month" id="expiry_date" name="expiry_date" required></p>
+                <input type="submit" id="view_preview" class="btn btn-primary btn-lg" value="{% trans 'Continue' %}">
+            </form>
+            <div class="alert alert-info" style="display: none;"></div>
+
+        </body>
+        <script>
+           const phoneInputField = document.querySelector("#phone");
+           const phoneInput = window.intlTelInput(phoneInputField, {
+             utilsScript:
+               "https://cdnjs.cloudflare.com/ajax/libs/intl-tel-input/17.0.8/js/utils.js",
+               });
+             const info = document.querySelector(".alert-info");
+
+            function process(event) {
+             event.preventDefault();
+
+             const phoneNumber = phoneInput.getNumber();
+
+             info.style.display = "none";
+             error.style.display = "none";
+
+             if (phoneInput.isValidNumber()) {
+               info.style.display = "";
+               info.innerHTML = `Phone number in E.164 format: <strong>${phoneNumber}</strong>`;
+             } else {
+               error.style.display = "";
+               error.innerHTML = `Invalid phone number.`;
+             }
+            }
+         </script>
+        <script>
+                    let form = document.querySelector('form');
+                    let continueButton = document.getElementById('view_preview');
+
+                    form.addEventListener('input', function() {
+                        let fields = form.querySelectorAll('input[required]');
+                        let allFilled = Array.from(fields).every(function(field) {
+                            return field.value !== '';
+                        });
+
+                        continueButton.disabled = !allFilled;
+                    });
+                </script>
+        <script>
+            let expiryDateInput = document.getElementById('expiry_date');
+
+            expiryDateInput.min = new Date().toISOString().substring(0,7);
+
+            expiryDateInput.addEventListener('input', function() {
+                let chosenDate = new Date(this.value + '-01');
+                let now = new Date();
+
+                if (chosenDate < now) {
+                    this.setCustomValidity('Expiry date cannot be in the past');
+                } else {
+                    this.setCustomValidity('');
+                }
+            });
+        </script>
+        <script>
+            const phoneInputField = document.querySelector("#phone");
+            const phoneInput = window.intlTelInput(phoneInputField, {
+              utilsScript:
+                "https://cdnjs.cloudflare.com/ajax/libs/intl-tel-input/17.0.8/js/utils.js",
+            });
+            const info = document.querySelector(".alert-info");
+            const form = document.querySelector('form');
+            const continueButton = document.getElementById('view_preview');
+
+            function process(event) {
+              event.preventDefault();
+
+              const phoneNumber = phoneInput.getNumber();
+
+              info.style.display = "none";
+              error.style.display = "none";
+
+              if (phoneInput.isValidNumber()) {
+                info.style.display = "";
+                info.innerHTML = `Phone number in E.164 format: <strong>${phoneNumber}</strong>`;
+                validateForm();
+              } else {
+                error.style.display = "";
+                error.innerHTML = `Invalid phone number.`;
+                continueButton.disabled = true;
+              }
+            }
+
+            function validateForm() {
+              let fields = form.querySelectorAll('input[required]');
+              let allFilled = Array.from(fields).every(function(field) {
+                return field.value !== '';
+              });
+
+              continueButton.disabled = !allFilled;
+            }
+
+            form.addEventListener('input', validateForm);
+
+            phoneInputField.addEventListener('blur', process);
+        </script>
 {% endblock payment_details %}

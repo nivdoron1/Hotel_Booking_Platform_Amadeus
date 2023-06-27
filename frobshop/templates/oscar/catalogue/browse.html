@@ -20,10 +20,7 @@
     </nav>
 {% endblock breadcrumbs %}
 
-
-
 {% block content %}
-
     <form method="get">
         {# Render other search params as hidden inputs #}
         {% for value in selected_facets %}
@@ -69,6 +66,16 @@
     {% else %}
         <p class="nonefound">{% trans "No products found." %}</p>
     {% endif %}
+
+    {% for category in child_categories %}
+        <h2>{{ category.name }}</h2>
+        {% for product in category.products.all|dictsort:"stockrecord.price_excl_tax" %}
+            <div>
+                <h3>{{ product.title }}</h3>
+                <p>Price: {{ product.stockrecord.price_excl_tax }}</p>
+            </div>
+        {% endfor %}
+    {% endfor %}
 
 {% endblock content %}
 

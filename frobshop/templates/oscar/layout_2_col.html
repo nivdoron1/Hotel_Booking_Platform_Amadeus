@@ -29,6 +29,94 @@ main content area to split it into a sidebar and a content block
             </div>
 
         </div><!-- /row -->
+        {% if '/catalogue/category/' in request.path %}
+        <div class="row">
+            <aside class="sidebar col-sm-4 col-md-3">
+
+                   <!-- Navbar -->
+              <nav class="navbar navbar-expand-lg navbar-light bg-light">
+                <a class="navbar-brand" href="#">Hotel Filters</a>
+              </nav>
+
+              <!-- Filter options -->
+              <div class="container mt-4">
+                <h2>Filters</h2>
+
+                <!-- Star rating -->
+                <div class="mb-4">
+                  <h4>Star Rating</h4>
+                  <div class="form-check">
+                    <input class="form-check-input" type="checkbox" id="2stars">
+                    <label class="form-check-label" for="2stars">2 stars</label>
+                  </div>
+                  <div class="form-check">
+                    <input class="form-check-input" type="checkbox" id="3stars">
+                    <label class="form-check-label" for="3stars">3 stars</label>
+                  </div>
+                  <div class="form-check">
+                    <input class="form-check-input" type="checkbox" id="4stars">
+                    <label class="form-check-label" for="4stars">4 stars</label>
+                  </div>
+                  <div class="form-check">
+                    <input class="form-check-input" type="checkbox" id="5stars">
+                    <label class="form-check-label" for="5stars">5 stars</label>
+                  </div>
+                </div>
+
+                <!-- Amenities -->
+                <div class="mb-4">
+                  <h4>Amenities</h4>
+                  <div class="form-check">
+                    <input class="form-check-input" type="checkbox" id="swimmingPool">
+                    <label class="form-check-label" for="swimmingPool">Swimming Pool</label>
+                  </div>
+                  <div class="form-check">
+                    <input class="form-check-input" type="checkbox" id="spa">
+                    <label class="form-check-label" for="spa">Spa</label>
+                  </div>
+                  <!-- Repeat for other amenities -->
+                </div>
+
+                <!-- Distance -->
+                <div class="mb-4">
+                  <h4>Distance</h4>
+                  <div class="form-check">
+                    <input class="form-check-input" type="checkbox" id="5km">
+                    <label class="form-check-label" for="5km">Less than 5 km</label>
+                  </div>
+                  <div class="form-check">
+                    <input class="form-check-input" type="checkbox" id="3km">
+                    <label class="form-check-label" for="3km">Less than 3 km</label>
+                  </div>
+                  <div class="form-check">
+                    <input class="form-check-input" type="checkbox" id="1km">
+                    <label class="form-check-label" for="1km">Less than 1 km</label>
+                  </div>
+                </div>
+
+                <!-- Board Type -->
+                <div class="mb-4">
+                  <h4>Board Type</h4>
+                  <div class="form-check">
+                    <input class="form-check-input" type="checkbox" id="roomOnly">
+                    <label class="form-check-label" for="roomOnly">Room Only</label>
+                  </div>
+                  <div class="form-check">
+                    <input class="form-check-input" type="checkbox" id="breakfast">
+                    <label class="form-check-label" for="breakfast">Breakfast</label>
+                  </div>
+                  <!-- Repeat for other board types -->
+                </div>
+                    <button type="submit" class="btn btn-primary">Apply</button>
+              </div>
+
+              <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+              <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+                    </aside>
+
+        </div>
+                    {% endif %}
+
     </div><!-- /page_inner -->
 </div><!-- /container -->
 {% endblock %}

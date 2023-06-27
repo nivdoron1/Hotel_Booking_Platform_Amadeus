@@ -97,6 +97,7 @@ INSTALLED_APPS = [
     'widget_tweaks',
     'haystack',
     'treebeard',
+    'frobshop.PriceAlert',
     'sorl.thumbnail',
     'django_tables2',
     'oscar_accounts.apps.AccountsConfig',
@@ -171,14 +172,15 @@ HAYSTACK_CONNECTIONS = {
 }
 EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
 # EMAIL_BACKEND = "anymail.backends.google.GoogleBackend"
-EMAIL_HOST = 'smtp@gmail.com'
+EMAIL_HOST = 'smtp.gmail.com'
 EMAIL_PORT = 587
-EMAIL_HOST_USER = 'nivdoron1234@gmail.com'
-EMAIL_HOST_PASSWORD = 'cghgpheaurwgcpoa'
 EMAIL_USE_TLS = True
+EMAIL_HOST_USER = 'nivdoron1234@gmail.com'
+EMAIL_HOST_PASSWORD = 'nivdoron1347'
 DEFAULT_FROM_EMAIL = 'nivdoron1234@gmail.com'  # Default from email
 # Password validation
 # https://docs.djangoproject.com/en/3.2/ref/settings/#auth-password-validators
+OSCAR_CHECKOUT_MIXIN = 'custom_checkout.custom_checkout_mixin.CustomCheckoutSessionMixin'
 
 AUTH_PASSWORD_VALIDATORS = [
     # {

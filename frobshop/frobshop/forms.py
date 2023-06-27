@@ -14,3 +14,15 @@ class CustomEmailUserCreationForm(EmailUserCreationForm):
 
     class Meta(EmailUserCreationForm.Meta):
         fields = ['first_name', 'last_name', 'email', 'password1', 'password2']
+
+
+class PaymentForm(forms.Form):
+    title = forms.CharField(max_length=200)
+    first_name = forms.CharField(max_length=200)
+    last_name = forms.CharField(max_length=200)
+    phone = forms.CharField(max_length=200)
+    email = forms.EmailField()
+    method = forms.CharField(max_length=200)
+    vendor_code = forms.CharField(max_length=200)
+    card_number = forms.CharField(max_length=200)
+    expiry_date = forms.DateField()

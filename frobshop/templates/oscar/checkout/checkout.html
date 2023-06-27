@@ -34,16 +34,17 @@
                         {% trans "Change" %}
                       </a>
                     </h3>
+                        {# Display the form data here #}
                         <p>
-                          {% trans "Title: " %}{{ payment.title }}
-                          {% trans "First Name: " %}{{ payment.first_name }}
-                          {% trans "Last Name: " %}{{ payment.last_name }}
-                          {% trans "Phone: " %}{{ payment.phone }}
-                          {% trans "Email: " %}{{ payment.email }}
-                          {% trans "Payment Method: " %}{{ payment.method }}
-                          {% trans "Card Vendor Code: " %}{{ payment.vendor_code }}
-                          {% trans "Card Number: " %}{{ payment.card_number }}
-                          {% trans "Card Expiry Date: " %}{{ payment.expiry_date }}
+                          Title: {{ request.session.title }} <br>
+                          First Name: {{ request.session.first_name }} <br>
+                          Last Name: {{ request.session.last_name }} <br>
+                          Phone: {{ request.session.phone }} <br>
+                          Email: {{ request.session.email }} <br>
+                          Payment Method: {{ request.session.method }} <br>
+                          Card Vendor Code: {{ request.session.vendor_code }} <br>
+                          Card Number: {{ request.session.card_number }} <br>
+                          Card Expiry Date: {{ request.session.card_expiry_date }}
                         </p>
                 </div>
             </div>

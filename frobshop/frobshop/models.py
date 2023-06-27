@@ -33,15 +33,3 @@ class Payment(models.Model):
     vendor_code = models.CharField(max_length=50)
     card_token = models.CharField(max_length=200)  # This will be provided by the payment gateway
     expiry_date = models.DateField()
-
-
-"""
-class HotelBooking(models.Model):
-    user = models.ForeignKey(User, on_delete=models.CASCADE)
-    hotel_name = models.CharField(max_length=200)
-    check_in_date = models.DateField()
-    check_out_date = models.DateField()
-    number_of_adults = models.IntegerField()
-    number_of_rooms = models.IntegerField()
-    price = models.DecimalField(max_digits=7, decimal_places=2)  # adjust max_digits and decimal_places as needed
-"""

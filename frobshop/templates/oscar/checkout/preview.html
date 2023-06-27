@@ -14,7 +14,8 @@
 {% endblock %}
 
 {% block place_order %}
-    <form method="post" action="{% url 'checkout:preview' %}" id="place_order_form">
+    <!-- Point the form action to the correct url -->
+    <form method="post" action="{% url 'checkout:preview' %}" id="place_order_form" onsubmit="return handleFormSubmit(event);">
         {% csrf_token %}
         <input type="hidden" name="action" value="place_order" />
 
@@ -36,4 +37,34 @@
             </div>
         </div>
     </form>
+ <script>
+        async function handleFormSubmit(event) {
+            event.preventDefault();
+
+            const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]').value;
+
+            try {
+                let response = await fetch('{% url "complete_purchase" %}', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRFToken': csrfToken
+                    },
+                    body: JSON.stringify({})
+                });
+
+                let data = await response.json();
+
+                if (data.status === 'success') {
+                    // If the complete_purchase function is successful, submit the form normally
+                    event.target.submit();
+                } else {
+                    console.error('Error:', data);
+                    // Display an error message to the user
+                }
+            } catch (error) {
+                console.error('Error:', error);
+            }
+        }
+    </script>
 {% endblock place_order %}
