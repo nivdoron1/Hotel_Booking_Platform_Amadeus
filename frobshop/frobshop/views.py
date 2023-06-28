@@ -12,7 +12,6 @@ from django.shortcuts import render
 from django.urls import path
 from django.views import View
 from django.views.decorators.http import require_http_methods
-from oscar.apps.catalogue.models import Category, ProductCategory, Product
 from oscar.apps.customer.views import AccountRegistrationView as CoreAccountRegistrationView
 from oscar.apps.partner.models import Partner, StockRecord
 from oscar.apps.partner.strategy import Selector
@@ -29,6 +28,7 @@ USERNAME = None
 from django.shortcuts import redirect
 from django.contrib.auth.decorators import login_required
 from oscar.apps.catalogue.models import Product
+
 
 
 @login_required
@@ -179,15 +179,12 @@ def add_parent_product(title, description, category, partner="Default Partner"):
     # Check if the parent product already exists
     if not Product.objects.filter(title=title).exists():
         # Create the parent product
-        print(f"Creating product with category ID: {category.id}")
         parent_product = Product.objects.create(title=title,
                                                 description=description,
                                                 product_class_id=3,
                                                 structure=Product.PARENT)  # Use appropriate product class id
 
-        print(f"Product created: {parent_product}")
         product_category = ProductCategory.objects.create(product=parent_product, category=category)
-        print(f"ProductCategory created: {product_category}")
     else:
         parent_product = Product.objects.get(title=title)
         print(f"Found existing product: {parent_product}")
@@ -425,6 +422,7 @@ def get_hotel_offers(request):
     user, domain = username.split('@')
     dom, dotdomain = domain.split('.')
     user = user + dom + dotdomain
+    # products_less_than_5_stars = Product.objects.annotate(avg_rating=Avg('ratingproduct__rating')).filter(avg_rating__lt=5)
 
     return redirect(f'/catalogue/category/{user}_{category.id}/', hotel_offers)
 
@@ -449,6 +447,15 @@ def get_hotel_offer(request, alert_id):
     dom, dotdomain = domain.split('.')
     user = user + dom + dotdomain
     return redirect(f'/catalogue/category/{user}_{category.id}/', hotel_offers)
+
+
+from oscar.apps.catalogue.views import ProductCategoryView
+
+
+class CustomProductCategoryView(ProductCategoryView):
+    def get_queryset(self):
+        qs = super().get_queryset()
+        return qs.annotate(avg_rating=Avg('reviews__rating')).exclude(avg_rating=5)
 
 
 @login_required(login_url='/accounts/login/')
@@ -589,8 +596,26 @@ def get_hotel_geo_list(latitude, longitude):
         print("Failed to get data:", response.status_code)
 
 
-from django.db.models import Q, Min
+from django.core import serializers
+from django.http import JsonResponse
+from django.views import View
+from django.db.models import Q, Avg
+from django.utils.decorators import method_decorator
+from django.views.decorators.csrf import csrf_exempt
 from oscar.apps.catalogue.models import Product
+
+
+@method_decorator(csrf_exempt, name='dispatch')
+class ProductFilterView(View):
+    def post(self, request, *args, **kwargs):
+        data = request.body.decode('utf-8')
+        ratings = json.loads(data)
+        q_objects = Q()
+        for rating in ratings:
+            q_objects |= Q(rating=rating)
+        products = Product.objects.filter(q_objects, parent=None)  # only parent products
+        serialized_products = serializers.serialize('json', products)
+        return JsonResponse({'products': serialized_products}, status=200)
 
 
 def filter(request):
@@ -647,50 +672,30 @@ def get_hotel_offer_list(lat, lng, category, checkInDate, checkOutDate, adults, 
         data = response.json()
         for item in data['data']:
             hotel_id = item['hotel']['name']
-            hotel_stars = hotel_ids_d[0]['rating']
+            hotel_stars = hotel_ids_d[0]['rating'] if hotel_ids_d != [] else 5
             handel.hotels_list[hotel_id] = []
             hotel_details = {
                 'name': item['hotel']['name'],
                 'hotelId': item['hotel']['hotelId'],
                 'cityCode': item['hotel']['cityCode'],
-                'chainCode': hotel_ids_d[0]['chainCode'],
-                'iataCode': hotel_ids_d[0]['iataCode'],
-                'dupeId': hotel_ids_d[0]['dupeId'],
+                'chainCode': hotel_ids_d[0]['chainCode'] if hotel_ids_d != [] else "None",
+                'iataCode': hotel_ids_d[0]['iataCode'] if hotel_ids_d != [] else "None",
+                'dupeId': hotel_ids_d[0]['dupeId'] if hotel_ids_d != [] else "None",
                 'geoCode': "latitude: " + str(hotel_ids_d[0]['geoCode']['latitude']) + " longitude: " + str(
-                    hotel_ids_d[0]['geoCode']['longitude']),
-                'address': hotel_ids_d[0]['address']['countryCode'],
+                    hotel_ids_d[0]['geoCode']['longitude']) if hotel_ids_d != [] else "None",
+                'address': hotel_ids_d[0]['address']['countryCode'] if hotel_ids_d != [] else "None",
                 'distance': str(hotel_ids_d[0]['distance']['value']) + str(hotel_ids_d[0]['distance'][
-                                                                               'unit']) + " from location",
-                'amenities': ' , '.join(hotel_ids_d[0]['amenities']),
-                'rating': hotel_ids_d[0]['rating'],
-                'giataId': hotel_ids_d[0]['giataId'],
-                'lastUpdate': hotel_ids_d[0]['lastUpdate'],
+                                                                               'unit']) + " from location" if hotel_ids_d != [] else "None",
+                'amenities': ' , '.join(hotel_ids_d[0]['amenities']) if hotel_ids_d != [] else "None",
+                'rating': hotel_ids_d[0]['rating'] if hotel_ids_d != [] else "None",
+                'giataId': hotel_ids_d[0]['giataId'] if hotel_ids_d != [] else "None",
+                'lastUpdate': hotel_ids_d[0]['lastUpdate'] if hotel_ids_d != [] else "None",
 
             }
             parent_description = json.dumps(hotel_details, indent=4)
+            print(parent_description)
             parent_product = add_parent_product(title=hotel_id, description=parent_description, category=category)
             update_product_review_score(parent_product, hotel_stars)
-            """
-                        for dat in hotel_ids_data["data"]:
-                if dat["hotelId"]==item['hotel']['hotelId']:
-                    hotel_details = {
-                        "chainCode": dat["chainCode"],
-                        "iataCode": dat["iataCode"],
-                        "name": dat['name'],
-                        "hotelId": dat['hotelId'],
-                        "cityCode": item['hotel']['cityCode'],
-                        "dupeId": dat["dupeId"],
-                        "geoCode": dat["geoCode"],
-                        "address": dat["address"],
-                        "distance": dat["distance"],
-                        "amenities": dat["amenities"],
-                        "rating": dat["rating"],
-                        "giataId": dat["giataId"],
-                        "lastUpdate": dat["lastUpdate"]
-                    }
-                    hotel_ids_data["data"].remove(dat)
-
-            """
             childs_list = []
             for offer in item['offers']:
                 offer_id = offer['id']
@@ -700,23 +705,23 @@ def get_hotel_offer_list(lat, lng, category, checkInDate, checkOutDate, adults, 
                     'checkInDate': offer.get('checkInDate', None),
                     'checkOutDate': offer.get('checkOutDate', None),
                     'rateCode': offer.get('rateCode', None),
-                    'room type': offer['room']['type'],
-                    'room type category': offer['room']['typeEstimated']['category'],
-                    'room type beds': offer['room']['typeEstimated']['beds'],
-                    'room type bedType': offer['room']['typeEstimated']['bedType'],
-                    'room lang': offer['room']['description']['lang'],
-                    'room description': offer['room']['description']['text'],
-                    'adults': offer['guests']['adults'],
-                    'price currency': offer['price']['currency'],
-                    'price total': offer['price']['total'],
+                    'room type': offer['room']['type'] if offer else None,
+                    'room type category': offer['room']['typeEstimated']['category'] if offer else None,
+                    'room type beds': offer['room']['typeEstimated']['beds'] if offer else None,
+                    'room type bedType': offer['room']['typeEstimated']['bedType'] if offer else None,
+                    'room lang': offer['room']['description']['lang'] if offer else None,
+                    'room description': offer['room']['description']['text'] if offer else None,
+                    'adults': offer['guests']['adults'] if offer else None,
+                    'price currency': offer['price']['currency'] if offer else None,
+                    'price total': offer['price']['total'] if offer else None,
                     # 'price taxes': offer['price']['taxes'],
-                    'cancellations': offer['policies']['cancellations'],
+                    'cancellations': offer['policies']['cancellations'] if offer else None,
                     # 'price changes startDate': offer['price']['changes']['startDate'],
                     # 'price changes endDate': offer['price']['changes']['endDate'],
                     # 'price changes total': offer['price']['changes']['total'],
                     'changes': offer.get('changes', None),
                     'price': offer.get('price', None),
-                    #'guarantee': ' '.join(offer['policies']['guarantee']['acceptedPayments']['creditCards']),
+                    # 'guarantee': ' '.join(offer['policies']['guarantee']['acceptedPayments']['creditCards']),
                     # 'paymentType': ' '.join(offer['paymentType']),
                     ##'price taxes code': offer['price']['taxes']['code'],
                     ##'price taxes pricingFrequency': offer['price']['taxes']['pricingFrequency'],
@@ -725,7 +730,6 @@ def get_hotel_offer_list(lat, lng, category, checkInDate, checkOutDate, adults, 
                     ##'price taxes currency': offer['price']['taxes']['currency'],
                     ##'price taxes included': offer['price']['taxes']['included'],
                 }
-                # hotel_description=hotel_data['checkInDate']+"\n"+hotel_data['checkOutDate']+"\n"+hotel_data['rateCode']+"\n"+hotel_data['rateFamilyEstimated']+hotel_data['room']+"\n"+hotel_data['guests']+"\n"+hotel_data['price']+"\n"+hotel_data['policies']
                 hotel_description = json.dumps(hotel_data, indent=4)  # Convert the hotel data to a JSON string
                 currency = hotel_data['price']['currency'] if hotel_data.get('price') else None
                 total_price = locale.atof(hotel_data['price']['total']) * float(roomQuantity) if hotel_data.get(

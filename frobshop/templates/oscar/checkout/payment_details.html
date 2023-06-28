@@ -18,7 +18,7 @@
 {% block payment_method %}{% endblock %}
 
 {% block payment_details %}
- <head>
+<head xmlns="http://www.w3.org/1999/html">
    <meta name="viewport" content="width=device-width, initial-scale=1" />
      <style>
      *,@import url('https://fonts.googleapis.com/css2?family=Inter:wght@100;200;300;400;500;600;700;800;900&display=swap');
@@ -161,6 +161,9 @@
       cursor: pointer;
     }
 </style>
+    <style>input#phone{
+        position: static;
+        }</style>
      <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/intl-tel-input@18.1.1/build/css/intlTelInput.css">
    <script src="https://cdnjs.cloudflare.com/ajax/libs/intl-tel-input/17.0.8/js/intlTelInput.min.js"></script>
  </head>
@@ -187,7 +190,10 @@
                 <p>First Name: <input type="text" name="first_name" required></p>
                 <p>Last Name: <input type="text" name="last_name" required></p>
                 <p>Enter your phone number:</p>
-                <p><input id="phone" type="tel" name="phone" style="position:center"></p>
+                <input id="phone" type="tel" name="phone">
+                </br>
+                </br>
+
                 <p>Email: <input type="email" name="email" required></p>
                 <p>Payment Method:
                     <select name="method" required>

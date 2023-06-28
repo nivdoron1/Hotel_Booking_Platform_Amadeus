@@ -12,6 +12,7 @@
 {% block headertext %}{{ summary }}{% endblock %}
 
 {% block breadcrumbs %}
+
     <nav aria-label="breadcrumb">
         <ol class="breadcrumb">
             <li class="breadcrumb-item"><a href="{{ homepage_url }}">{% trans "Home" %}</a></li>
@@ -21,6 +22,16 @@
 {% endblock breadcrumbs %}
 
 {% block content %}
+    <head>
+      <style>
+        .sticky {
+          position: sticky;
+          top: 0;
+          overflow-y: auto;
+          max-height: 50vh;
+          }
+      </style>
+    </head>
     <form method="get">
         {# Render other search params as hidden inputs #}
         {% for value in selected_facets %}
@@ -54,7 +65,7 @@
 
     {% if products %}
         <section>
-            <div>
+            <div id="product-list">
                 <ol class="row list-unstyled ml-0 pl-0">
                     {% for product in products %}
                         <li class="col-sm-6 col-md-4 col-lg-3">{% render_product product %}</li>
@@ -76,7 +87,173 @@
             </div>
         {% endfor %}
     {% endfor %}
+            <nav class="navbar navbar-expand-lg navbar-light bg-light">
+                <a class="navbar-brand" href="#">Hotel Filters</a>
+              </nav>
+                {% csrf_token %}
+              <!-- Filter options -->
+              <div class="container mt-4">
+                <h2>Filters</h2>
 
+                <!-- Star rating -->
+                <div class="mb-4">
+                  <h4>Star Rating</h4>
+                <div class="form-check">
+                    <input class="form-check-input rating-checkbox" type="checkbox" id="2stars" value="2.0">
+                    <label class="form-check-label" for="2stars">2 stars</label>
+                </div>
+                <div class="form-check">
+                    <input class="form-check-input rating-checkbox" type="checkbox" id="3stars" value="3.0">
+                    <label class="form-check-label" for="3stars">3 stars</label>
+                </div>
+                <div class="form-check">
+                    <input class="form-check-input rating-checkbox" type="checkbox" id="4stars" value="4.0">
+                    <label class="form-check-label" for="4stars">4 stars</label>
+                </div>
+                <div class="form-check">
+                    <input class="form-check-input rating-checkbox" type="checkbox" id="5stars" value="5.0">
+                    <label class="form-check-label" for="5stars">5 stars</label>
+                </div>
+
+                </div>
+
+                <!-- Amenities -->
+                <div class="mb-4 amenities sticky">
+                  <h4>Amenities</h4>
+
+                  <!-- Repeat for other amenities -->
+                </div>
+
+                <!-- Distance -->
+                <div class="mb-4">
+                  <h4>Distance</h4>
+                  <div class="form-check">
+                    <input class="form-check-input distance-checkbox" type="checkbox" id="5km" value="5.0">
+                    <label class="form-check-label distance-checkbox" for="5km">Less than 5 km</label>
+                  </div>
+                  <div class="form-check">
+                    <input class="form-check-input distance-checkbox" type="checkbox" id="3km" value="3.0">
+                    <label class="form-check-label distance-checkbox" for="3km">Less than 3 km</label>
+                  </div>
+                  <div class="form-check">
+                    <input class="form-check-input distance-checkbox" type="checkbox" id="1km" value="1.0">
+                    <label class="form-check-label distance-checkbox" for="1km">Less than 1 km</label>
+                  </div>
+                </div>
+                  <!-- Repeat for other board types -->
+                </div>
+                    <button type="button" class="btn btn-primary" onclick="event.preventDefault(); resetFilters()">Reset</button>
+                    <button type="button" class="btn btn-primary" onclick="event.preventDefault(); filters()">Apply</button>
+              </div>
+    <script>
+        // Define your amenities
+        let amenities = ["SWIMMING_POOL", "SPA", "FITNESS_CENTER", "AIR_CONDITIONING", "RESTAURANT", "PARKING",
+        "PETS_ALLOWED", "AIRPORT_SHUTTLE", "BUSINESS_CENTER", "DISABLED_FACILITIES", "WIFI", "MEETING_ROOMS",
+        "NO_KID_ALLOWED", "TENNIS", "GOLF", "KITCHEN", "ANIMAL_WATCHING", "BABY-SITTING", "BEACH", "CASINO",
+        "JACUZZI", "SAUNA", "SOLARIUM", "MASSAGE", "VALET_PARKING", "BAR or LOUNGE", "KIDS_WELCOME", "NO_PORN_FILMS",
+        "MINIBAR", "TELEVISION", "WI-FI_IN_ROOM", "ROOM_SERVICE", "GUARDED_PARKG", "SERV_SPEC_MENU"];
+
+        // Generate HTML for each amenity
+        let amenitiesHTML = amenities.map(amenity => {
+          let id = amenity.toLowerCase().replace(/ /g, "-"); // Replace spaces with dashes for ID
+          return `
+            <div class="form-check">
+              <input class="form-check-input amenities-checkbox" type="checkbox" id="${id}" value="${amenity}">
+              <label class="form-check-label" for="${id}">${amenity}</label>
+            </div>
+          `;
+        }).join(""); // Join array elements into a single string
+
+        // Write HTML to document
+        document.querySelector(".amenities").innerHTML += amenitiesHTML;
+</script>
+    <script>
+            function findCommonAmenities(selectedAmenities, amenities) {
+
+                return selectedAmenities.filter(item => amenities.includes(item));
+            }
+          function filters() {
+            let selectedRatings = Array.from(document.getElementsByClassName('rating-checkbox'))
+                .filter(checkbox => checkbox.checked)
+                .map(checkbox => checkbox.value);
+            let selectedAmenities = Array.from(document.getElementsByClassName('amenities-checkbox'))
+                .filter(checkbox => checkbox.checked)
+                .map(checkbox => checkbox.value);
+            let selectedDistance = Array.from(document.getElementsByClassName('distance-checkbox'))
+                .filter(checkbox => checkbox.checked)
+                .map(checkbox => checkbox.value);
+            // Get all product elements
+            const productElements = document.querySelectorAll('.product_pod');
+
+            // Iterate over product elements
+            productElements.forEach((productElement) => {
+                // Get product rating from data attribute
+                let price = productElement.getAttribute('product.price')
+                alert(price);
+                let rating = productElement.getAttribute('data-rating');
+                let description = JSON.parse(productElement.getAttribute('product-description'));
+                let amenities = description.amenities.split(', ').map(amenity => amenity.trim().toUpperCase());
+                let distance = description.distance;
+                let distanceNumber = parseFloat(distance.substring(0, distance.indexOf('K')).trim());
+                let isDistanceNumberBigger = selectedDistance.every(selectedDis => distanceNumber > selectedDis);
+                alert(distanceNumber);
+                if (!selectedRatings.includes(rating) && !selectedRatings.length == 0) {
+                    productElement.style.display = 'none'; // Hide the product
+                }
+                if(findCommonAmenities(selectedAmenities,amenities).length < selectedAmenities.length && !selectedAmenities.length == 0 ) {
+                    productElement.style.display = 'none'; // Hide the product
+                }
+
+                if (isDistanceNumberBigger && !selectedDistance.length == 0) {
+                    productElement.style.display = 'none'; // Hide the product
+                }
+            });
+        }
+        function resetFilters() {
+        // Get all product elements
+        const productElements = document.querySelectorAll('.product_pod');
+
+        // Iterate over product elements
+        productElements.forEach((productElement) => {
+            // Show all products
+            productElement.style.display = 'block';
+        });
+
+        // Uncheck all rating checkboxes
+        let ratingCheckboxes = document.getElementsByClassName('rating-checkbox');
+        for(let checkbox of ratingCheckboxes) {
+            checkbox.checked = false;
+        }
+    }
+    </script>
+    <script>
+    function filterProducts() {
+    let selectedRatings = Array.from(document.getElementsByClassName('rating-checkbox'))
+        .filter(checkbox => checkbox.checked)
+        .map(checkbox => checkbox.value);
+
+    fetch('{% url 'filter_products' %}', {
+        method: 'POST',
+        body: JSON.stringify(selectedRatings),
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRFToken': '{{ csrf_token }}'
+        }
+    })
+    .then(response => response.json())
+    .then(data => {
+        let productList = document.getElementById('product-list');
+        productList.innerHTML = '';
+        let products = JSON.parse(data.products);
+        products.forEach(product => {
+            let title = product.fields.title;  // replace 'title' with the actual field name
+            let price = product.fields.price;  // replace 'price' with the actual field name
+            productList.innerHTML += `<li class="col-sm-6 col-md-4 col-lg-3">${title} - ${price}</li>`;
+        });
+    });
+}
+
+    </script>
 {% endblock content %}
 
 {% block onbodyload %}

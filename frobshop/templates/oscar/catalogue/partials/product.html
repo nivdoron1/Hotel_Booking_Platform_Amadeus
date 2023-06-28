@@ -4,7 +4,7 @@
 {% load reviews_tags %}
 
 {% block product %}
-    <article class="product_pod">
+    <article class="product_pod" product-price={{product.price}} data-rating="{{ product.rating }}" product-description="{{ product.description }}">
         {% block product_image %}
             <div class="image_container w-100">
                 {% with image=product.primary_image %}

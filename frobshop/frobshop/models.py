@@ -33,3 +33,31 @@ class Payment(models.Model):
     vendor_code = models.CharField(max_length=50)
     card_token = models.CharField(max_length=200)  # This will be provided by the payment gateway
     expiry_date = models.DateField()
+
+
+from django.db import models
+from django.core.mail import send_mail
+from django.dispatch import Signal, receiver
+
+# Define your signal
+user_registered = Signal(providing_args=["user", "request"])
+
+
+# Define your email sending function
+def send_registration_email(user):
+    subject = "Registration Complete"
+    message = "Welcome to our site, {}. Your registration is complete.".format(user.username)
+    from_email = 'your_email@example.com'
+    recipient_list = [user.email]
+
+    send_mail(subject, message, from_email, recipient_list)
+
+
+from django.dispatch import receiver
+from oscar.apps.customer.signals import user_registered
+from .email_utils import send_registration_email
+
+
+@receiver(user_registered)
+def send_welcome_email(sender, user, request, **kwargs):
+    send_registration_email(user)

@@ -86,7 +86,7 @@
                     {% for child in product.children.public %}
                         {% purchase_info_for_product request child as child_session %}
                         {% if child_session.availability.is_available_to_buy %}
-                            <a href="{{ child.get_absolute_url }}" id="child-product-title">{{ child.get_title }}</a><br>
+                            <a href="{{ child.get_absolute_url }}" id="child-product-title" data-title="{{ child.get_title }}"></a><br>
                         {% endif %}
                     {% endfor %}
                 {% endblock %}
@@ -150,6 +150,40 @@
             document.getElementById('formatted_description').innerHTML = formatted_description;
         });
     </script>
+    <script>
+            window.addEventListener('DOMContentLoaded', (event) => {
+                document.querySelectorAll('#child-product-title').forEach((el) => {
+                   let titleParts = el.dataset.title.split(",");  // Split the title into an array of parts
+                   let title = titleParts.slice(1).join(",");  // Join all parts starting from the second one
+                   if (title) {
+                        el.innerText = title;  // Set the second part as the link text
+                   }
+                });
+            });
+    </script>
+<script>
+$(document).ready(function() {
+  $('.btn-primary').click(function(e) {
+    e.preventDefault();
+
+    var selectedRatings = [];
+    $('input[type=checkbox]:checked').each(function() {
+      selectedRatings.push($(this).attr('id'));
+    });
+
+    $.ajax({
+      url: '/filter_products/',  // Update with your endpoint
+      type: 'get',
+      data: {
+        'ratings': selectedRatings
+      },
+      success: function(response) {
+        // Update your product list with the returned data
+      }
+    });
+  });
+});
+</script>
 {% endif %}
 
 {% endblock %}

@@ -170,14 +170,14 @@ HAYSTACK_CONNECTIONS = {
         'ENGINE': 'haystack.backends.simple_backend.SimpleEngine',
     },
 }
-EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
+#EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
 # EMAIL_BACKEND = "anymail.backends.google.GoogleBackend"
 EMAIL_HOST = 'smtp.gmail.com'
 EMAIL_PORT = 587
 EMAIL_USE_TLS = True
 EMAIL_HOST_USER = 'nivdoron1234@gmail.com'
 EMAIL_HOST_PASSWORD = 'nivdoron1347'
-DEFAULT_FROM_EMAIL = 'nivdoron1234@gmail.com'  # Default from email
+DEFAULT_FROM_EMAIL = EMAIL_HOST_USER  # Default from email
 # Password validation
 # https://docs.djangoproject.com/en/3.2/ref/settings/#auth-password-validators
 OSCAR_CHECKOUT_MIXIN = 'custom_checkout.custom_checkout_mixin.CustomCheckoutSessionMixin'
