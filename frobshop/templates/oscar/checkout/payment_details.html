@@ -164,17 +164,21 @@
     <style>input#phone{
         position: static;
         }</style>
-     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/intl-tel-input@18.1.1/build/css/intlTelInput.css">
-   <script src="https://cdnjs.cloudflare.com/ajax/libs/intl-tel-input/17.0.8/js/intlTelInput.min.js"></script>
- </head>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/intl-tel-input/17.0.8/css/intlTelInput.css">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/intl-tel-input/17.0.8/js/intlTelInput.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/intl-tel-input/17.0.8/js/utils.js"></script>
+
+
+</head>
 
 <body>
-            <h2>Booking for {{ hotel_name }}</h2>
+            <h2>Booking for  {{ request.basket.all_lines.0.product.parent.title }}</h2>
             {# Here we iterate over the lines in the basket #}
             {% for line in request.basket.all_lines %}
-                <p>Product Name: {{ line.product.title }}</p>
+                <p id="product_name">Product Name: {{ line.product.title }}</p>
                 <p>Product Price: {{ line.line_price_incl_tax|currency }}</p>
             {% endfor %}
+
 
             <form action="{% url 'handle_payment' %}" method="post">
                 {% csrf_token %}
@@ -198,49 +202,26 @@
                 <p>Payment Method:
                     <select name="method" required>
                         <option value="">Select...</option>
-                        <option value="CreditCard">CreditCard</option>
+                        <option value="CreditCard">Credit Card</option>
                     </select>
                 </p>
                 <p>Card Vendor Code:
                     <select name="vendor_code" required>
                         <option value="">Select...</option>
-                        <option value="VI">VI</option>
-                        <option value="MC">MC</option>
-                        <option value="AE">AE</option>
+                        <option value="VI">VISA</option>
+                        <option value="MC">MASTER CARD</option>
+                        <option value="AX">AMERICAN EXPRESS</option>
                     </select>
                 </p>
-                <p>Card Number: <input type="text" minlength="15" maxlength="16" class="card-number", name="card_number",placeholder="Card Number" required></p>
+                <p>Card Number: <input type="text" minlength="15" maxlength="16" class="card-number" name="card_number" placeholder="Card Number" required></p>
                 <p>Card Expiry Date: <input type="month" id="expiry_date" name="expiry_date" required></p>
                 <input type="submit" id="view_preview" class="btn btn-primary btn-lg" value="{% trans 'Continue' %}">
+                <p class="error-msg" style="color:red;"></p>
+
             </form>
             <div class="alert alert-info" style="display: none;"></div>
 
         </body>
-        <script>
-           const phoneInputField = document.querySelector("#phone");
-           const phoneInput = window.intlTelInput(phoneInputField, {
-             utilsScript:
-               "https://cdnjs.cloudflare.com/ajax/libs/intl-tel-input/17.0.8/js/utils.js",
-               });
-             const info = document.querySelector(".alert-info");
-
-            function process(event) {
-             event.preventDefault();
-
-             const phoneNumber = phoneInput.getNumber();
-
-             info.style.display = "none";
-             error.style.display = "none";
-
-             if (phoneInput.isValidNumber()) {
-               info.style.display = "";
-               info.innerHTML = `Phone number in E.164 format: <strong>${phoneNumber}</strong>`;
-             } else {
-               error.style.display = "";
-               error.innerHTML = `Invalid phone number.`;
-             }
-            }
-         </script>
         <script>
                     let form = document.querySelector('form');
                     let continueButton = document.getElementById('view_preview');
@@ -271,45 +252,90 @@
             });
         </script>
         <script>
+            function luhnCheck(val) {
+            let sum = 0;
+            for (let i = 0; i < val.length; i++) {
+                let intVal = parseInt(val.substr(i, 1));
+                if (i % 2 == 0) {
+                    intVal *= 2;
+                    if (intVal > 9) {
+                        intVal = 1 + (intVal % 10);
+                    }
+                }
+                sum += intVal;
+            }
+            return (sum % 10) == 0;
+        }
+
+        document.querySelector('form').addEventListener('submit', function(e){
+            let cardNumber = document.querySelector('.card-number').value;
+            if(!luhnCheck(cardNumber)){
+                alert('Invalid Card Number');
+                e.preventDefault();
+            }
+        });
+
+        </script>
+        <script>
+            function updateProductName() {
+            // Select the paragraph element by id
+            let productTitleElement = document.getElementById("product_name");
+
+            // Get the text content of the paragraph
+            let productTitle = productTitleElement.textContent;
+
+            // Find the index of the first comma in the string
+            let commaIndex = productTitle.indexOf(',');
+
+            // If there is a comma in the string
+            if(commaIndex !== -1) {
+                // Take all elements before the first comma
+                let productName = productTitle.slice(commaIndex+1);
+
+                // Update the text content of the paragraph
+                productTitleElement.textContent = productName;
+            }
+        }
+
+        // Call the function
+        updateProductName();
+
+
+        </script>
+        <script>
             const phoneInputField = document.querySelector("#phone");
             const phoneInput = window.intlTelInput(phoneInputField, {
-              utilsScript:
-                "https://cdnjs.cloudflare.com/ajax/libs/intl-tel-input/17.0.8/js/utils.js",
+                utilsScript:
+                    "https://cdnjs.cloudflare.com/ajax/libs/intl-tel-input/17.0.8/js/utils.js",
+                    // allowDropdown: false,
+                        // autoHideDialCode: false,
+                        // autoPlaceholder: "off",
+                        // dropdownContainer: document.body,
+                        // excludeCountries: ["us"],
+                        // formatOnDisplay: false,
+                        // geoIpLookup: function(callback) {
+                        //   $.get("http://ipinfo.io", function() {}, "jsonp").always(function(resp) {
+                        //     var countryCode = (resp && resp.country) ? resp.country : "";
+                        //     callback(countryCode);
+                        //   });
+                        // },
+                        // hiddenInput: "full_number",
+                        initialCountry: "auto",
+                        // localizedCountries: { 'de': 'Deutschland' },
+                        // nationalMode: false,
+                        //onlyCountries: ['us', 'gb', 'ch', 'ca', 'do'],
+                        // placeholderNumberType: "MOBILE",
+                        preferredCountries: ['il','us', 'gb', 'ch', 'ca', 'do'],
+                        separateDialCode: true,
             });
-            const info = document.querySelector(".alert-info");
-            const form = document.querySelector('form');
-            const continueButton = document.getElementById('view_preview');
 
-            function process(event) {
-              event.preventDefault();
-
-              const phoneNumber = phoneInput.getNumber();
-
-              info.style.display = "none";
-              error.style.display = "none";
-
-              if (phoneInput.isValidNumber()) {
-                info.style.display = "";
-                info.innerHTML = `Phone number in E.164 format: <strong>${phoneNumber}</strong>`;
-                validateForm();
-              } else {
-                error.style.display = "";
-                error.innerHTML = `Invalid phone number.`;
-                continueButton.disabled = true;
-              }
-            }
-
-            function validateForm() {
-              let fields = form.querySelectorAll('input[required]');
-              let allFilled = Array.from(fields).every(function(field) {
-                return field.value !== '';
-              });
-
-              continueButton.disabled = !allFilled;
-            }
-
-            form.addEventListener('input', validateForm);
-
-            phoneInputField.addEventListener('blur', process);
+            document.querySelector('form').addEventListener('submit', function(e) {
+                if(!phoneInput.isValidNumber()) {
+                    alert('Invalid Phone Number');
+                    e.preventDefault();
+                }
+            });
         </script>
+
+
 {% endblock payment_details %}

@@ -173,6 +173,14 @@
                 return selectedAmenities.filter(item => amenities.includes(item));
             }
           function filters() {
+            // Get all product elements
+            const productElementings = document.querySelectorAll('.product_pod');
+
+            // Iterate over product elements
+            productElementings.forEach((productElement) => {
+            // Show all products
+                productElement.style.display = 'block';
+            });
             let selectedRatings = Array.from(document.getElementsByClassName('rating-checkbox'))
                 .filter(checkbox => checkbox.checked)
                 .map(checkbox => checkbox.value);
@@ -188,15 +196,12 @@
             // Iterate over product elements
             productElements.forEach((productElement) => {
                 // Get product rating from data attribute
-                let price = productElement.getAttribute('product.price')
-                alert(price);
                 let rating = productElement.getAttribute('data-rating');
                 let description = JSON.parse(productElement.getAttribute('product-description'));
                 let amenities = description.amenities.split(', ').map(amenity => amenity.trim().toUpperCase());
                 let distance = description.distance;
                 let distanceNumber = parseFloat(distance.substring(0, distance.indexOf('K')).trim());
                 let isDistanceNumberBigger = selectedDistance.every(selectedDis => distanceNumber > selectedDis);
-                alert(distanceNumber);
                 if (!selectedRatings.includes(rating) && !selectedRatings.length == 0) {
                     productElement.style.display = 'none'; // Hide the product
                 }
@@ -221,7 +226,16 @@
 
         // Uncheck all rating checkboxes
         let ratingCheckboxes = document.getElementsByClassName('rating-checkbox');
+        let amenities = document.getElementsByClassName('amenities-checkbox');
+        let distance = document.getElementsByClassName('distance-checkbox');
+
         for(let checkbox of ratingCheckboxes) {
+            checkbox.checked = false;
+        }
+        for(let checkbox of amenities) {
+            checkbox.checked = false;
+        }
+        for(let checkbox of distance) {
             checkbox.checked = false;
         }
     }
@@ -254,6 +268,8 @@
 }
 
     </script>
+
+
 {% endblock content %}
 
 {% block onbodyload %}

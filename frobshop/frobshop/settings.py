@@ -54,7 +54,7 @@ ALLOWED_HOSTS = []
 
 INSTALLED_APPS = [
     'product_management',
-    #'checkout',  # keep this if it's your custom app
+    # 'checkout',  # keep this if it's your custom app
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -103,6 +103,7 @@ INSTALLED_APPS = [
     'oscar_accounts.apps.AccountsConfig',
     'oscar_accounts.dashboard.apps.AccountsDashboardConfig',
     'background_task',
+    'django_celery_results',
 ]
 SITE_ID = 1
 PAYPAL_CLIENT_ID = 'AUW-BPbcuymksaQJB929pD3DpTIUsHNVk47ZIdZthU0Q3TWeqWJjqzUo5V8Uorx_zjM6z125xUFR2vVu'
@@ -170,14 +171,17 @@ HAYSTACK_CONNECTIONS = {
         'ENGINE': 'haystack.backends.simple_backend.SimpleEngine',
     },
 }
-#EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
+# EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
 # EMAIL_BACKEND = "anymail.backends.google.GoogleBackend"
-EMAIL_HOST = 'smtp.gmail.com'
+EMAIL_HOST = 'smtp.outlook.com'
 EMAIL_PORT = 587
 EMAIL_USE_TLS = True
-EMAIL_HOST_USER = 'nivdoron1234@gmail.com'
-EMAIL_HOST_PASSWORD = 'nivdoron1347'
-DEFAULT_FROM_EMAIL = EMAIL_HOST_USER  # Default from email
+EMAIL_HOST_USER = 'nivdoron1234@hotmail.com'
+OSCAR_FROM_EMAIL = 'nivdoron1234@hotmail.com'
+
+# EMAIL_HOST_PASSWORD = 'VG3PB-YWHYB-LCPBA-ZZRKM-XP6ST'
+EMAIL_HOST_PASSWORD = 'qlhrtxecdgfosmea'
+# DEFAULT_FROM_EMAIL = EMAIL_HOST_USER  # Default from email
 # Password validation
 # https://docs.djangoproject.com/en/3.2/ref/settings/#auth-password-validators
 OSCAR_CHECKOUT_MIXIN = 'custom_checkout.custom_checkout_mixin.CustomCheckoutSessionMixin'
@@ -227,3 +231,5 @@ MEDIA_ROOT = os.path.join(BASE_DIR, '/media')
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 OSCAR_SHOP_NAME = "HOLIOLI"
 LOGIN_URL = '/accounts/login/'
+CELERY_RESULT_BACKEND = 'django-db'
+CELERY_CACHE_BACKEND = 'django-cache'

@@ -3,6 +3,7 @@ from django.core.checks import messages
 from amadeus import amadeus
 from django.http import JsonResponse, HttpResponseRedirect
 import json
+from django.utils import timezone
 import requests
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.views import LoginView
@@ -17,18 +18,26 @@ from oscar.apps.partner.models import Partner, StockRecord
 from oscar.apps.partner.strategy import Selector
 from requests.auth import HTTPBasicAuth
 
-from .forms import EmailUserCreationForm
 from .models import Product
 from .order.models import Order
 
-api_key = 'nc3HcfEOuEoLQ8tKgGmXemwP8XkfDKbs'
-api_secret = 'slE8rqApxZBdXCU5'
+# api_key = 'nc3HcfEOuEoLQ8tKgGmXemwP8XkfDKbs'
+# api_secret = 'slE8rqApxZBdXCU5'
+api_key = '8vZfCYy8QB53BCZpmAr05cVnIUDFiFoI'
+api_secret = 'FbeNpLvRVzY25yW2'
 USERNAME = None
 
 from django.shortcuts import redirect
 from django.contrib.auth.decorators import login_required
 from oscar.apps.catalogue.models import Product
 
+"""
+Adds a product to the basket and redirects to the checkout page.
+
+@param request: The HTTP request object.
+@param product_id: The ID of the product to add to the basket.
+@return: A redirection to the checkout page.
+"""
 
 
 @login_required
@@ -45,8 +54,20 @@ def add_to_basket_and_checkout(request, product_id):
     return redirect('checkout:index')  # replace 'checkout:index' with your actual checkout URL name
 
 
+"""
+Custom login view.
+@redirect_authenticated_user: Flag to redirect authenticated users.
+"""
+
+
 class MyLoginView(LoginView):
     redirect_authenticated_user = True
+    """
+     Validates the login form.
+
+     @param form: The login form.
+     @return: A redirection to the next URL if present, otherwise the default behavior.
+     """
 
     def form_valid(self, form):
         remember_me = self.request.POST.get('remember_me')
@@ -61,8 +82,16 @@ class MyLoginView(LoginView):
         return super().form_valid(form)
 
 
+"""
+Builds an access token for the API.
+@param api_key: The API key.
+@param api_secret: The API secret.
+@return: The access token.
+"""
+
+
 def access_token_builder(api_key, api_secret):
-    url = "https://test.api.amadeus.com/v1/security/oauth2/token"
+    url = "https://api.amadeus.com/v1/security/oauth2/token"
     payload = {
         "grant_type": "client_credentials"
     }
@@ -86,9 +115,19 @@ from oscar.apps.catalogue.categories import create_from_breadcrumbs
 
 
 class HandleHotel:
+    """
+    Constructor for the HandleHotel class.
+    """
+
     def __init__(self):
         self.hotels_list = {}
         self.remove_hotels(offer_id=None)
+
+    """
+    Removes hotels from the database.
+
+    @param offer_id: The ID of the offer to remove. If None, removes all hotels.
+    """
 
     def remove_hotels(self, offer_id):
         if offer_id is None:
@@ -118,6 +157,13 @@ class HandleHotel:
         self.hotels_list = {}
 
 
+"""
+Deletes a child product from the database.
+@param title: The title of the child product.
+@param parent_title: The title of the parent product.
+"""
+
+
 def delete_child_product(title, parent_title):
     try:
         parent_product = Product.objects.get(title=parent_title, structure=Product.PARENT)
@@ -128,6 +174,12 @@ def delete_child_product(title, parent_title):
         print(f"Child product with title {title} under parent product {parent_title} does not exist")
 
 
+"""
+Deletes a parent product from the database.
+@param title: The title of the parent product.
+"""
+
+
 def delete_parent_product(title):
     try:
         product = Product.objects.get(title=title, structure=Product.PARENT)
@@ -135,6 +187,18 @@ def delete_parent_product(title):
         print(f"Deleted parent product with title {title}")
     except Product.DoesNotExist:
         print(f"Parent product with title {title} does not exist")
+
+
+"""
+Adds a child product to the database.
+@param title: The title of the child product.
+@param description: The description of the child product.
+@param parent_product: The parent product.
+@param currency: The currency of the child product's price.
+@param price: The price of the child product.
+@param partner: The partner of the child product (default is "Default Partner").
+@return: The added child product.
+"""
 
 
 def add_child_product(title, description, parent_product, currency, price, partner="Default Partner"):
@@ -172,6 +236,16 @@ def add_child_product(title, description, parent_product, currency, price, partn
     return child_product
 
 
+"""
+Adds a parent product to the database.
+@param title: The title of the parent product.
+@param description: The description of the parent product.
+@param category: The category of the parent product.
+@param partner: The partner of the parent product (default is "Default Partner").
+@return: The added parent product.
+"""
+
+
 def add_parent_product(title, description, category, partner="Default Partner"):
     partner, created = Partner.objects.get_or_create(name=partner)
     print(f"Partner: {partner}, Created: {created}")
@@ -198,12 +272,25 @@ handel.remove_hotels(offer_id=None)
 access_token = access_token_builder(api_key=api_key, api_secret=api_secret)
 
 
-class AccountRegistrationView(CoreAccountRegistrationView):
-    form_class = EmailUserCreationForm
+"""
+Creates a new category.
+@param category_name: The name of the category.
+@return: The created category.
+"""
 
 
 def create_new_category(category_name):
     return create_from_breadcrumbs(category_name)
+
+
+"""
+Renders the book page.
+@param request: The HTTP request object.
+@param offer_id: The ID of the offer.
+@param hotel_name: The name of the hotel.
+@param price: The price of the booking.
+@return: The rendered book page.
+"""
 
 
 @login_required(login_url='/accounts/login/')
@@ -218,6 +305,12 @@ def book(request, offer_id, hotel_name, price):
 from django.views.decorators.http import require_POST
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
+
+"""
+Handles the payment form submission.
+@param request: The HTTP request object.
+@return: A redirection to the preview page or the previous page if there are errors.
+"""
 
 
 @login_required(login_url='/accounts/login/')
@@ -257,6 +350,12 @@ def handle_payment(request):
     return redirect('checkout:preview')
 
 
+"""
+Removes payment-related session data.
+@param request: The HTTP request object.
+"""
+
+
 def remove_handle_payment(request):
     keys_to_remove = ['title', 'first_name', 'last_name', 'phone', 'email', 'payment_method',
                       'card_vendor_code', 'card_number', 'card_expiry_date']
@@ -266,11 +365,27 @@ def remove_handle_payment(request):
             del request.session[key]
 
 
+"""
+Renders the home page.
+@param request: The HTTP request object.
+@return: The rendered home page.
+"""
+
+
 def home(request):
     return render(request, 'index.html')
 
 
 from oscar.apps.checkout.views import PaymentDetailsView as CorePaymentDetailsView
+
+"""
+View for payment details.
+Inherits from CorePaymentDetailsView.
+
+handle_successful_order: Handles a successful order.
+
+Additional session data: booking_id, provider_confirmation_id, reference_id, origin_system_code.
+"""
 
 
 class PaymentDetailsView(CorePaymentDetailsView):
@@ -308,6 +423,12 @@ OrderTotalCalculator = get_class('checkout.calculators', 'OrderTotalCalculator')
 from oscar.core.prices import Price
 
 from oscar.core.loading import get_model, get_class
+
+"""
+Handles the completion of a purchase.
+@ param request The HTTP request object which contains session data and basket data.
+@ returns A JSON response containing the booking id, provider confirmation id, reference id, and origin system code.
+"""
 
 
 @require_http_methods(["POST"])
@@ -347,6 +468,16 @@ def complete_purchase(request):
     })
 
 
+"""
+    * Adds new elements to an existing order.
+    * 
+    * @param request          The HTTP request object which contains session data.
+    * @param order_number     The unique identifier of the order to which new elements are added.
+    *
+    * @returns Nothing. The function saves the changes to the Order model.
+"""
+
+
 def add_new_elements_to_order(request, order_number):
     order = Order.objects.get(number=order_number)
     order.Booking_ID = request.session['booking_id']
@@ -363,12 +494,30 @@ def add_new_elements_to_order(request, order_number):
 
 from django.views import View
 
+"""
+* Class-based view to add new elements to an existing order.
+* Uses the HTTP POST method.
+*
+* @param request          The HTTP request object, expecting 'order_number' in POST data.
+* 
+* @returns A JSON response with status 'ok'.
+"""
+
 
 class AddElementsToOrderView(View):
     def post(self, request):
         order_number = request.POST.get('order_number')
         add_new_elements_to_order(request, order_number)
         return JsonResponse({'status': 'ok'})
+
+
+"""
+* Handles the confirmation of an order.
+*
+* @param request          The HTTP request object containing form data and offer_id in the session.
+*
+* @returns A rendered template '/checkout/thank-you/' with booking data context.
+"""
 
 
 @require_http_methods(["POST"])
@@ -396,11 +545,29 @@ def confirm(request):
     return render(request, '/checkout/thank-you/', {'booking_data': booking_response})
 
 
+"""
+* Retrieves the username of the currently authenticated user.
+*
+* @param request          The HTTP request object containing user data.
+*
+* @returns The username of the authenticated user, or None if the user is not authenticated.
+"""
+
+
 def get_username(request):
     username = None
     if request.user.is_authenticated:
         username = request.user.email
     return username
+
+
+"""
+* Retrieves a list of hotel offers based on search criteria.
+*
+* @param request          The HTTP request object containing search criteria data in POST.
+*
+* @returns A redirect to a catalogue page with the hotel offers.
+"""
 
 
 @require_http_methods(["POST"])
@@ -427,6 +594,16 @@ def get_hotel_offers(request):
     return redirect(f'/catalogue/category/{user}_{category.id}/', hotel_offers)
 
 
+"""
+* Retrieves a hotel offer based on an alert.
+*
+* @param request          The HTTP request object.
+* @param alert_id         The unique identifier of the PriceAlert object.
+*
+* @returns A redirect to a catalogue page with the hotel offers.
+"""
+
+
 @require_http_methods(["POST"])
 def get_hotel_offer(request, alert_id):
     alert = PriceAlert.objects.get(pk=alert_id)
@@ -451,11 +628,26 @@ def get_hotel_offer(request, alert_id):
 
 from oscar.apps.catalogue.views import ProductCategoryView
 
+"""
+* A custom class-based view to display a list of products in a category, excluding 5-star products.
+*
+* @returns A queryset of products that is displayed in the view.
+"""
+
 
 class CustomProductCategoryView(ProductCategoryView):
     def get_queryset(self):
         qs = super().get_queryset()
         return qs.annotate(avg_rating=Avg('reviews__rating')).exclude(avg_rating=5)
+
+
+"""
+* Handles the index view of the website.
+*
+* @param request          The HTTP request object.
+*
+* @returns A rendered index.html template with user context if the user is authenticated.
+"""
 
 
 @login_required(login_url='/accounts/login/')
@@ -470,6 +662,15 @@ def index(request):
     else:
         context = {}
     return render(request, 'index.html', context)
+
+
+"""
+* Handles a geocode search based on a query.
+*
+* @param request          The HTTP request object containing the query in GET data.
+*
+* @returns A JSON response containing geocode search results.
+"""
 
 
 @require_http_methods(["GET"])
@@ -489,6 +690,15 @@ def search(request):
         return JsonResponse({'features': []})  # return empty list if query is too short
 
 
+"""
+* Handles the hotels view of the website.
+*
+* @param request          The HTTP request object.
+*
+* @returns A rendered template for a category page.
+"""
+
+
 @require_http_methods(["GET"])
 def hotels(request):
     username = get_username(request=request)
@@ -498,6 +708,15 @@ def hotels(request):
     category = create_new_category(category_name=user)
 
     return render(request, f'/catalogue/category/{user}_{category.id}/')
+
+
+"""
+This function fetches a list of hotels in a specific city. It calls the Amadeus API and returns a list of hotels
+based on the provided city code.
+
+:param cityCode: str, The code of the city to fetch hotels.
+:return: json response containing hotels data.
+"""
 
 
 def get_hotel_city_list(cityCode):
@@ -537,6 +756,14 @@ def get_hotel_city_list(cityCode):
         print("Failed to get data:", response.status_code)
 
 
+"""
+This function returns the geocodes (latitude and longitude) of a specific location using the OpenCageData API.
+
+:param location: str, The name of the location to fetch geocodes.
+:return: Tuple containing latitude and longitude.
+"""
+
+
 def get_geocode(location):
     # OpenCageData API endpoint
     url = "https://api.opencagedata.com/geocode/v1/json"
@@ -566,8 +793,18 @@ def get_geocode(location):
     return None
 
 
+"""
+This function fetches a list of hotels based on a geocode (latitude and longitude). It calls the Amadeus API
+and returns a list of hotels.
+
+:param latitude: float, The latitude of the location.
+:param longitude: float, The longitude of the location.
+:return: json response containing hotels data.
+"""
+
+
 def get_hotel_geo_list(latitude, longitude):
-    url = "https://test.api.amadeus.com/v1/reference-data/locations/hotels/by-geocode"
+    url = "https://api.amadeus.com/v1/reference-data/locations/hotels/by-geocode"
 
     headers = {
         "Authorization": f"Bearer {access_token}",
@@ -604,6 +841,13 @@ from django.utils.decorators import method_decorator
 from django.views.decorators.csrf import csrf_exempt
 from oscar.apps.catalogue.models import Product
 
+"""
+ This is a Django View class which processes a POST request and returns a list of products filtered by the provided
+ ratings.
+
+ :method post: Handles POST request.
+ """
+
 
 @method_decorator(csrf_exempt, name='dispatch')
 class ProductFilterView(View):
@@ -616,6 +860,15 @@ class ProductFilterView(View):
         products = Product.objects.filter(q_objects, parent=None)  # only parent products
         serialized_products = serializers.serialize('json', products)
         return JsonResponse({'products': serialized_products}, status=200)
+
+
+"""
+This function filters a list of products based on the provided ratings. It fetches all products and then applies
+filters on the rating attribute.
+
+:param request: Django HttpRequest object.
+:return: Rendered product list HTML page.
+"""
 
 
 def filter(request):
@@ -634,9 +887,27 @@ def filter(request):
     return render(request, 'product_list.html', {'products': products})
 
 
+"""
+This function fetches a list of hotel offers based on certain parameters like location, date, adults count etc. 
+It calls the Amadeus API and returns a list of hotel offers.
+
+:param lat: float, Latitude of the location.
+:param lng: float, Longitude of the location.
+:param category: str, The category of the hotel.
+:param checkInDate: str, Check-in date in the format 'YYYY-MM-DD'.
+:param checkOutDate: str, Check-out date in the format 'YYYY-MM-DD'.
+:param adults: int, Number of adults.
+:param roomQuantity: int, Number of rooms required.
+:param paymentPolicy: str, Payment policy.
+:param bestRateOnly: str, Flag to determine if only the best rate should be considered.
+:param hotel_id: str, The id of the hotel. If none, fetch all hotels.
+:return: json response containing hotel offers data.
+"""
+
+
 def get_hotel_offer_list(lat, lng, category, checkInDate, checkOutDate, adults, roomQuantity, paymentPolicy="NONE",
                          bestRateOnly="false", hotel_id=None):
-    url = "https://test.api.amadeus.com/v3/shopping/hotel-offers"
+    url = "https://api.amadeus.com/v3/shopping/hotel-offers"
     headers = {
         "Authorization": f"Bearer {access_token}",
         "Content-Type": "application/json"
@@ -647,17 +918,11 @@ def get_hotel_offer_list(lat, lng, category, checkInDate, checkOutDate, adults, 
         hotel_ids.append(hotel_id)
     else:
         hotel_ids_data = get_hotel_geo_list(latitude=lat, longitude=lng)
+        print(hotel_ids_data)
         hotel_id = [d["hotelId"] for d in hotel_ids_data["data"]]
-        print(hotel_id)
-        for hotel in hotel_ids_data["data"]:
-            if hotel["hotelId"] == 'MCLONGHM' or hotel["hotelId"] == 'PILONBAK':
-                hotel_ids_d.append(hotel)
-        # id=get_hotel_geo_list(latitude=lat, longitude=lng)
-        # print(id)
-        hotel_ids.append("MCLONGHM")
-        hotel_ids.append("PILONBAK")
-        # hotel_ids.append("BGLONBGB")
-
+        for i in range(0, min(len(hotel_id), 97)):
+            hotel_ids_d.append(hotel_ids_data["data"][i])
+            hotel_ids.append(hotel_id[i])
     params = {
         "hotelIds": hotel_ids,
         "adults": adults,
@@ -672,66 +937,88 @@ def get_hotel_offer_list(lat, lng, category, checkInDate, checkOutDate, adults, 
         data = response.json()
         for item in data['data']:
             hotel_id = item['hotel']['name']
-            hotel_stars = hotel_ids_d[0]['rating'] if hotel_ids_d != [] else 5
+            hotel_hotelID = item['hotel']['hotelId']
+            hotel_desc = {}
+            for hotel_of in hotel_ids_d:
+                if hotel_of.get('hotelId', '') == hotel_hotelID:
+                    hotel_desc = hotel_of
+                    break
+            print(hotel_desc)
+            hotel_stars = hotel_desc.get('rating', 0)
             handel.hotels_list[hotel_id] = []
             hotel_details = {
-                'name': item['hotel']['name'],
-                'hotelId': item['hotel']['hotelId'],
+                'name': hotel_desc.get('name', ''),
+                'hotelId': hotel_desc.get('hotelId', ''),
                 'cityCode': item['hotel']['cityCode'],
-                'chainCode': hotel_ids_d[0]['chainCode'] if hotel_ids_d != [] else "None",
-                'iataCode': hotel_ids_d[0]['iataCode'] if hotel_ids_d != [] else "None",
-                'dupeId': hotel_ids_d[0]['dupeId'] if hotel_ids_d != [] else "None",
-                'geoCode': "latitude: " + str(hotel_ids_d[0]['geoCode']['latitude']) + " longitude: " + str(
-                    hotel_ids_d[0]['geoCode']['longitude']) if hotel_ids_d != [] else "None",
-                'address': hotel_ids_d[0]['address']['countryCode'] if hotel_ids_d != [] else "None",
-                'distance': str(hotel_ids_d[0]['distance']['value']) + str(hotel_ids_d[0]['distance'][
-                                                                               'unit']) + " from location" if hotel_ids_d != [] else "None",
-                'amenities': ' , '.join(hotel_ids_d[0]['amenities']) if hotel_ids_d != [] else "None",
-                'rating': hotel_ids_d[0]['rating'] if hotel_ids_d != [] else "None",
-                'giataId': hotel_ids_d[0]['giataId'] if hotel_ids_d != [] else "None",
-                'lastUpdate': hotel_ids_d[0]['lastUpdate'] if hotel_ids_d != [] else "None",
-
+                'chainCode': hotel_desc.get('chainCode', ''),
+                'iataCode': hotel_desc.get('iataCode', ''),
+                'dupeId': hotel_desc.get('dupeId', ''),
+                'geoCode': "latitude: " + str(
+                    hotel_desc.get('geoCode', {}).get('latitude', '')) + " longitude: " + str(
+                    hotel_desc.get('geoCode', {}).get('longitude', '')),
+                'address': hotel_desc.get('address', {}).get('countryCode', ''),
+                'distance': str(hotel_desc.get('distance', {}).get('value', '')) + str(
+                    hotel_desc.get('distance', {}).get('unit', '')) + " from location",
+                'amenities': ' , '.join(hotel_desc.get('amenities', '')),
+                'rating': hotel_desc.get('rating', ''),
+                # 'giataId': hotel_ids_d[0]['giataId'] if hotel_ids_d != [] else "None",
+                'lastUpdate': hotel_desc.get('lastUpdate', ''),
             }
             parent_description = json.dumps(hotel_details, indent=4)
-            print(parent_description)
+            # print(parent_description)
             parent_product = add_parent_product(title=hotel_id, description=parent_description, category=category)
             update_product_review_score(parent_product, hotel_stars)
             childs_list = []
             for offer in item['offers']:
                 offer_id = offer['id']
-                offer_name = offer_id + "," + offer['room']['typeEstimated']['category']
+                offer_name = offer_id + "," + offer.get('room', {}).get('typeEstimated', {}).get('category', "")
                 handel.hotels_list[hotel_id].append(offer_id)
+                price_changes = offer.get('price', {}).get('variations', {}).get('changes', [{}])[0]
+                taxes = offer.get('price', {}).get('taxes', [])
+                taxes_info = []
+                for tax in taxes:
+                    tax_info = {
+                        'price taxes code': tax.get('code', ""),
+                        'price taxes pricingFrequency': tax.get('pricingFrequency', ""),
+                        'price taxes pricingMode': tax.get('pricingMode', ""),
+                        'price taxes amount': tax.get('amount', ""),
+                        'price taxes currency': tax.get('currency', ""),
+                        'price taxes included': tax.get('included', ""),
+                    }
+                    taxes_info.append(tax_info)
                 hotel_data = {
-                    'checkInDate': offer.get('checkInDate', None),
-                    'checkOutDate': offer.get('checkOutDate', None),
-                    'rateCode': offer.get('rateCode', None),
-                    'room type': offer['room']['type'] if offer else None,
-                    'room type category': offer['room']['typeEstimated']['category'] if offer else None,
-                    'room type beds': offer['room']['typeEstimated']['beds'] if offer else None,
-                    'room type bedType': offer['room']['typeEstimated']['bedType'] if offer else None,
-                    'room lang': offer['room']['description']['lang'] if offer else None,
-                    'room description': offer['room']['description']['text'] if offer else None,
-                    'adults': offer['guests']['adults'] if offer else None,
-                    'price currency': offer['price']['currency'] if offer else None,
-                    'price total': offer['price']['total'] if offer else None,
-                    # 'price taxes': offer['price']['taxes'],
-                    'cancellations': offer['policies']['cancellations'] if offer else None,
-                    # 'price changes startDate': offer['price']['changes']['startDate'],
-                    # 'price changes endDate': offer['price']['changes']['endDate'],
-                    # 'price changes total': offer['price']['changes']['total'],
-                    'changes': offer.get('changes', None),
-                    'price': offer.get('price', None),
-                    # 'guarantee': ' '.join(offer['policies']['guarantee']['acceptedPayments']['creditCards']),
-                    # 'paymentType': ' '.join(offer['paymentType']),
-                    ##'price taxes code': offer['price']['taxes']['code'],
-                    ##'price taxes pricingFrequency': offer['price']['taxes']['pricingFrequency'],
-                    ##'price taxes pricingMode': offer['price']['taxes']['pricingMode'],
-                    ##'price taxes amount': offer['price']['taxes']['amount'],
-                    ##'price taxes currency': offer['price']['taxes']['currency'],
-                    ##'price taxes included': offer['price']['taxes']['included'],
+                    'checkInDate': offer.get('checkInDate', ""),
+                    'checkOutDate': offer.get('checkOutDate', ""),
+                    'rateCode': offer.get('rateCode', ""),
+                    'room type': offer.get('room', {}).get('type', ""),
+                    'room type category': offer.get('room', {}).get('typeEstimated', {}).get('category', ""),
+                    'room type beds': offer.get('room', {}).get('typeEstimated', {}).get('beds', ""),
+                    'room type bedType': offer.get('room', {}).get('typeEstimated', {}).get('bedType', ""),
+                    'room lang': offer.get('room', {}).get('description', {}).get('lang', ""),
+                    'room description': offer.get('room', {}).get('description', {}).get('text', ""),
+                    'adults': offer.get('guests', {}).get('adults', ""),
+                    'price currency': offer.get('price', {}).get('currency', ""),
+                    'price total': offer.get('price', {}).get('total', ""),
+                    'price taxes': offer.get('price', {}).get('taxes', ""),
+                    'cancellations': offer.get('policies', {}).get('cancellations', ""),
+                    'price changes startDate': price_changes.get('startDate', ""),
+                    'price changes endDate': price_changes.get('endDate', ""),
+                    'price changes total': price_changes.get('total', ""),
+                    'changes': offer.get('changes', ""),
+                    'price': offer.get('price', ""),
+                    'guarantee': offer.get('policies', {}).get('guarantee', {}).get('acceptedPayments', {}).get(
+                        'creditCards', ""),
+                    'paymentType': offer.get('paymentType', ""),
+                    # 'price taxes code': taxes_info[0]['price taxes code'],
+                    # 'price taxes pricingFrequency': taxes_info[0]['price taxes pricingFrequency'],
+                    # 'price taxes pricingMode': taxes_info[0]['price taxes pricingMode'],
+                    # 'price taxes amount': taxes_info[0]['price taxes amount'],
+                    # 'price taxes currency': taxes_info[0]['price taxes currency'],
+                    # 'price taxes included': taxes_info[0]['price taxes included'],
                 }
                 hotel_description = json.dumps(hotel_data, indent=4)  # Convert the hotel data to a JSON string
-                currency = hotel_data['price']['currency'] if hotel_data.get('price') else None
+                currency = hotel_data['price']['currency'] if hotel_data.get(
+                    'price') else None
                 total_price = locale.atof(hotel_data['price']['total']) * float(roomQuantity) if hotel_data.get(
                     'price') else 0
                 data = {
@@ -751,8 +1038,26 @@ def get_hotel_offer_list(lat, lng, category, checkInDate, checkOutDate, adults, 
         print("Failed to get data:", response.status_code)
 
 
+"""
+This function posts a booking using the Amadeus API. It takes various parameters like customer details, payment 
+details etc. and returns a response from the API.
+
+:param offer_id: str, The id of the offer.
+:param title: str, Title of the guest.
+:param first_name: str, First name of the guest.
+:param last_name: str, Last name of the guest.
+:param phone: str, Phone number of the guest.
+:param email: str, Email of the guest.
+:param method: str, Payment method.
+:param vendor_code: str, Vendor code of the payment card.
+:param card_number: str, Card number of the payment card.
+:param expiry_date: str, Expiry date of the payment card in the format 'YYYY-MM'.
+:return: json response containing booking data.
+"""
+
+
 def post_booking(offer_id, title, first_name, last_name, phone, email, method, vendor_code, card_number, expiry_date):
-    url = "https://test.api.amadeus.com/v1/booking/hotel-bookings"
+    url = "https://api.amadeus.com/v1/booking/hotel-bookings"
 
     headers = {
         "Authorization": f"Bearer {access_token}",
@@ -796,11 +1101,19 @@ def post_booking(offer_id, title, first_name, last_name, phone, email, method, v
         return None
 
 
+"""
+This function uses the Amadeus API to get a list of hotel suggestions based on the input keyword.
+
+:param name: str, the keyword used to search for hotels.
+:return: json response containing hotel data or an error message if the request fails.
+"""
+
+
 def hotel_auto_complete(name):
     headers = {
         "Authorization": f"Bearer {access_token}",
     }
-    url = 'https://test.api.amadeus.com/v1/reference-data/locations/hotel'
+    url = 'https://api.amadeus.com/v1/reference-data/locations/hotel'
     params = {
         "keyword": name,
         "subType": 'HOTEL_GDS',
@@ -815,12 +1128,28 @@ def hotel_auto_complete(name):
 
 from oscar.apps.catalogue.reviews.models import ProductReview
 
+"""
+This function updates the review score of a given product.
+
+:param product: Product, The product whose review score needs to be updated.
+:param new_score: float, The new review score.
+:return: None
+"""
+
 
 def update_product_review_score(product, new_score):
     # Get the reviews of the product
     reviews = ProductReview.objects.filter(product=product)
     product.rating = new_score
     product.save()
+
+
+"""
+This function handles the GET requests for hotel auto-complete functionality.
+
+:param request: HttpRequest object, The request object from the client.
+:return: JsonResponse containing a list of hotel suggestions.
+"""
 
 
 @require_http_methods(["GET"])
@@ -839,6 +1168,13 @@ from django.shortcuts import redirect
 from datetime import datetime
 from decimal import Decimal
 from .PriceAlert.models import PriceAlert
+
+"""
+This function handles the GET and POST requests for viewing a hotel.
+
+:param request: HttpRequest object, The request object from the client.
+:return: HttpResponse object, redirects to the price alert page if the request method is POST.
+"""
 
 
 @login_required(login_url='/accounts/login/')
@@ -869,11 +1205,28 @@ def hotel_view(request):
         return HttpResponseRedirect('/accounts/alerts/')
 
 
+"""
+This function retrieves a list of price alerts for a logged-in user.
+
+:param request: HttpRequest object, The request object from the client.
+:return: HttpResponse object, renders a list of price alerts for the logged-in user.
+"""
+
+
 @login_required(login_url='/accounts/login/')
 @require_http_methods(["GET", "POST"])
 def alerts_list(request):
     alerts = PriceAlert.objects.filter(user=request.user)
     return render(request, 'oscar/customer/alerts/alert_list.html', {'alerts': alerts})
+
+
+"""
+This function deletes a price alert with a given alert ID.
+
+:param request: HttpRequest object, The request object from the client.
+:param alert_id: int, The id of the alert to be deleted.
+:return: HttpResponse object, redirects to the price alerts page after deleting the alert.
+"""
 
 
 def delete_alert(request, alert_id):
@@ -882,12 +1235,29 @@ def delete_alert(request, alert_id):
     return redirect('price_alerts')
 
 
+"""
+This function retrieves a list of all price alerts.
+
+:param request: HttpRequest object, The request object from the client.
+:return: HttpResponse object, renders a list of all price alerts.
+"""
+
+
 def price_alerts(request):
     alerts = PriceAlert.objects.all()
+    now = timezone.now().date()
+    PriceAlert.objects.filter(check_in_date__lt=now).delete()
     return render(request, 'price_alerts.html', {'alerts': alerts})
 
 
 from oscar.apps.catalogue.models import Product
+
+"""
+This function sorts the child products of a given parent product by price.
+
+:param parent_product: Product, The parent product whose child products need to be sorted.
+:return: QuerySet, sorted list of child products by price.
+"""
 
 
 def sort_child_products_by_price(parent_product):
