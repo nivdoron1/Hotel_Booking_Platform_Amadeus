@@ -53,7 +53,6 @@ DEBUG = True
 ALLOWED_HOSTS = []
 
 INSTALLED_APPS = [
-    'product_management',
     # 'checkout',  # keep this if it's your custom app
     'django.contrib.admin',
     'django.contrib.auth',
@@ -62,6 +61,7 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'frobshop',
+    'product_management',
     'django.contrib.sites',
     'django.contrib.flatpages',
     'oscar.config.Shop',
@@ -98,6 +98,7 @@ INSTALLED_APPS = [
     'haystack',
     'treebeard',
     'frobshop.PriceAlert',
+    'hotels',
     'sorl.thumbnail',
     'django_tables2',
     'oscar_accounts.apps.AccountsConfig',
@@ -232,4 +233,3 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 OSCAR_SHOP_NAME = "HOLIOLI"
 LOGIN_URL = '/accounts/login/'
 CELERY_RESULT_BACKEND = 'django-db'
-CELERY_CACHE_BACKEND = 'django-cache'

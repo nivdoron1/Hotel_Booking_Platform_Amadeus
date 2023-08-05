@@ -26,10 +26,9 @@ from .order.models import Order
 api_key = '8vZfCYy8QB53BCZpmAr05cVnIUDFiFoI'
 api_secret = 'FbeNpLvRVzY25yW2'
 USERNAME = None
-
 from django.shortcuts import redirect
 from django.contrib.auth.decorators import login_required
-from oscar.apps.catalogue.models import Product
+from oscar.apps.catalogue.models import Product, ProductImage
 
 """
 Adds a product to the basket and redirects to the checkout page.
@@ -105,12 +104,9 @@ def access_token_builder(api_key, api_secret):
     return access_token
 
 
-from oscar.apps.catalogue.models import Product
 from oscar.apps.partner.models import Partner
-from oscar.apps.catalogue.categories import create_from_breadcrumbs
 from oscar.apps.catalogue.models import ProductCategory
 import locale
-from background_task import background
 from oscar.apps.catalogue.categories import create_from_breadcrumbs
 
 
@@ -133,7 +129,7 @@ class HandleHotel:
         if offer_id is None:
             Product.objects.all().delete()
         elif self.hotels_list is {}:
-            pass
+            return ""
         else:
             # Get the product corresponding to the offer_id
             product = Product.objects.get(title=offer_id)
@@ -245,8 +241,41 @@ Adds a parent product to the database.
 @return: The added parent product.
 """
 
+import io
+from django.core.files.base import ContentFile
+from PIL import Image
 
-def add_parent_product(title, description, category, partner="Default Partner"):
+from django.core.files.base import ContentFile
+from oscar.core.loading import get_model
+from PIL import Image
+import io
+
+Product = get_model('catalogue', 'product')
+ProductImage = get_model('catalogue', 'ProductImage')
+
+from django.core.files.base import ContentFile
+from django.core.files.uploadedfile import InMemoryUploadedFile
+from oscar.apps.catalogue.models import ProductImage
+
+
+def add_image_to_product(product, image_binary):
+    # Check if the product exists
+    if not isinstance(product, Product):
+        raise ValueError("The product parameter should be an instance of Product model")
+
+    # Create a ContentFile object from binary data
+    image_content = ContentFile(image_binary)
+
+    # Create InMemoryUploadedFile from ContentFile
+    uploaded_image = InMemoryUploadedFile(image_content, None, 'image.jpg', 'image/jpeg', image_content.tell, None)
+
+    # Create a new ProductImage object and associate it with the product
+    product_image = ProductImage.objects.create(product=product, original=uploaded_image)
+
+    return product_image
+
+
+def add_parent_product(title, description, category, image_data, partner="Default Partner"):
     partner, created = Partner.objects.get_or_create(name=partner)
     print(f"Partner: {partner}, Created: {created}")
     parent_product = None
@@ -259,6 +288,7 @@ def add_parent_product(title, description, category, partner="Default Partner"):
                                                 structure=Product.PARENT)  # Use appropriate product class id
 
         product_category = ProductCategory.objects.create(product=parent_product, category=category)
+        add_image_to_product(product=parent_product, image_binary=image_data)
     else:
         parent_product = Product.objects.get(title=title)
         print(f"Found existing product: {parent_product}")
@@ -270,7 +300,6 @@ handel = HandleHotel()
 handel.remove_hotels(offer_id=None)
 
 access_token = access_token_builder(api_key=api_key, api_secret=api_secret)
-
 
 """
 Creates a new category.
@@ -303,7 +332,6 @@ def book(request, offer_id, hotel_name, price):
 
 
 from django.views.decorators.http import require_POST
-from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 
 """
@@ -411,18 +439,10 @@ class PaymentDetailsView(CorePaymentDetailsView):
 
 from django.contrib import messages  # Import the messages framework
 from django.http import HttpResponseRedirect
-from django.urls import reverse
-from oscar.apps.checkout.mixins import OrderPlacementMixin
 from oscar.apps.partner.strategy import Selector
-from oscar.apps.basket.models import Basket
-from oscar.apps.order.utils import OrderCreator
 from oscar.core.loading import get_class
 
 OrderTotalCalculator = get_class('checkout.calculators', 'OrderTotalCalculator')
-
-from oscar.core.prices import Price
-
-from oscar.core.loading import get_model, get_class
 
 """
 Handles the completion of a purchase.
@@ -839,7 +859,6 @@ from django.views import View
 from django.db.models import Q, Avg
 from django.utils.decorators import method_decorator
 from django.views.decorators.csrf import csrf_exempt
-from oscar.apps.catalogue.models import Product
 
 """
  This is a Django View class which processes a POST request and returns a list of products filtered by the provided
@@ -920,7 +939,7 @@ def get_hotel_offer_list(lat, lng, category, checkInDate, checkOutDate, adults, 
         hotel_ids_data = get_hotel_geo_list(latitude=lat, longitude=lng)
         print(hotel_ids_data)
         hotel_id = [d["hotelId"] for d in hotel_ids_data["data"]]
-        for i in range(0, min(len(hotel_id), 97)):
+        for i in range(0, min(len(hotel_id), 5)):
             hotel_ids_d.append(hotel_ids_data["data"][i])
             hotel_ids.append(hotel_id[i])
     params = {
@@ -934,6 +953,7 @@ def get_hotel_offer_list(lat, lng, category, checkInDate, checkOutDate, adults, 
     }
     response = requests.get(url, headers=headers, params=params)
     if response.status_code == 200:
+        hotel_details_list = []
         data = response.json()
         for item in data['data']:
             hotel_id = item['hotel']['name']
@@ -966,7 +986,9 @@ def get_hotel_offer_list(lat, lng, category, checkInDate, checkOutDate, adults, 
             }
             parent_description = json.dumps(hotel_details, indent=4)
             # print(parent_description)
-            parent_product = add_parent_product(title=hotel_id, description=parent_description, category=category)
+            image = images_of_hotel(hotel_desc)
+            parent_product = add_parent_product(title=hotel_id, description=parent_description, image_data=image,
+                                                category=category)
             update_product_review_score(parent_product, hotel_stars)
             childs_list = []
             for offer in item['offers']:
@@ -1267,6 +1289,84 @@ def sort_child_products_by_price(parent_product):
     # Sort the child products by their price
     sorted_child_products = child_products.order_by('stockrecords__price')
     return sorted_child_products
+
+
+import requests
+import base64
+from hotels.models import Hotel
+from hotels.models import Image as Img
+from PIL import Image, UnidentifiedImageError
+from io import BytesIO
+
+
+def images_of_hotel(hotel_detail):
+    api_key = "AIzaSyCsIQGnoKbY33Q36J4fpJWzrOVcKjKVBZk"
+    url = "https://maps.googleapis.com/maps/api/place/nearbysearch/json"
+
+    lat = hotel_detail["geoCode"]["latitude"]
+    lng = hotel_detail["geoCode"]["longitude"]
+    coord = str(lat) + "," + str(lng)
+    name = hotel_detail["name"]
+    hotel_id = hotel_detail["hotelId"]
+
+    try:
+        existing_hotel = Hotel.objects.get(hotel_id=hotel_id)
+        print(existing_hotel.image.data)
+        return existing_hotel.image.data
+    except Hotel.DoesNotExist:
+        image_data = b""
+        print(1)
+        try:
+            params = {
+                "location": coord,
+                "radius": "30",
+                "keyword": name,
+                "key": api_key
+            }
+            response = requests.get(url, params=params)
+            data = response.json()
+
+            if data.get('results'):
+                photos = data['results'][0].get('photos')
+                photo_reference = photos[0].get('photo_reference', '') if photos else ''
+            else:
+                photo_reference = ''
+
+            photo_url = f"https://maps.googleapis.com/maps/api/place/photo?maxwidth=400&photoreference={photo_reference}&key={api_key}"
+            response = requests.get(photo_url, stream=True)
+
+            if response.status_code == 200:
+                # Try to open the content as an image
+                try:
+                    Image.open(BytesIO(response.content))
+                    image_data = response.content
+                except UnidentifiedImageError:
+                    print("The content could not be identified as an image.")
+        except Exception as e:
+            print(2)
+            print(f"An error occurred: {e}")
+            return b""
+
+        if image_data:
+            try:
+                # Create new Image instance and save it
+                image = Img(data=image_data)
+                image.save()
+                new_hotel = Hotel(
+                    hotel_id=hotel_id,
+                    hotel_name=name,
+                    lat=lat,
+                    lng=lng,
+                    image=image
+                )
+                new_hotel.save()
+            except Exception as e:
+                print(f"An error occurred while saving the image and hotel data: {e}")
+                return b""
+        else:
+            return b""
+        print(image)
+        return image.data
 
 
 # URLs mapping

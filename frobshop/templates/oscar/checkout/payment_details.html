@@ -45,9 +45,8 @@
       margin-bottom: 80px;
 
       position: relative;
-      width: 48vw;
-      height: auto;
-
+      width: fit-content;
+      height: fit-content;
       border-radius: 16px;
       background-color: white;
 
@@ -160,6 +159,9 @@
     #exit {
       cursor: pointer;
     }
+    header.header.container {
+    width: 82%;
+}
 </style>
     <style>input#phone{
         position: static;
@@ -167,7 +169,10 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/intl-tel-input/17.0.8/css/intlTelInput.css">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/intl-tel-input/17.0.8/js/intlTelInput.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/intl-tel-input/17.0.8/js/utils.js"></script>
-
+<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css" rel="stylesheet">
+<link href="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.13/css/select2.min.css" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.13/js/select2.min.js"></script>
 
 </head>
 
@@ -176,7 +181,7 @@
             {# Here we iterate over the lines in the basket #}
             {% for line in request.basket.all_lines %}
                 <p id="product_name">Product Name: {{ line.product.title }}</p>
-                <p>Product Price: {{ line.line_price_incl_tax|currency }}</p>
+                <p>Room Price: {{ line.line_price_incl_tax|currency }}</p>
             {% endfor %}
 
 
@@ -208,7 +213,7 @@
                 <p>Card Vendor Code:
                     <select name="vendor_code" required>
                         <option value="">Select...</option>
-                        <option value="VI">VISA</option>
+                        <option value="VI"> Visa</option>
                         <option value="MC">MASTER CARD</option>
                         <option value="AX">AMERICAN EXPRESS</option>
                     </select>

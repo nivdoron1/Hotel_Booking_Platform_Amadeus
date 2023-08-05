@@ -30,8 +30,136 @@
           overflow-y: auto;
           max-height: 50vh;
           }
-      </style>
+
+  </style>
+      <style>
+            button {
+  padding: 1.3em 3em;
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: 2.5px;
+  font-weight: 500;
+  color: #000;
+  background-color: #fff;
+  border: none;
+  border-radius: 45px;
+  box-shadow: 0px 8px 15px rgba(0, 0, 0, 0.1);
+  transition: all 0.3s ease 0s;
+  cursor: pointer;
+  outline: none;
+}
+
+button:hover {
+  background-color: #23c483;
+  box-shadow: 0px 15px 20px rgba(46, 229, 157, 0.4);
+  color: #fff;
+  transform: translateY(-7px);
+}
+
+button:active {
+  transform: translateY(-1px);
+}
+        </style>
     </head>
+
+    {% if products %}
+        <div class="col-sm-8" style="min-width: 600px">
+            <div id="product-list">
+                <ol class="row list-unstyled ml-0 pl-0" style="font-family: monospace;">
+                    {% for product in products %}
+                        <li class="col-sm-6 col-md-4 col-lg-3">{% render_product product %}</li>
+                    {% endfor %}
+                </ol>
+                {% include "oscar/partials/pagination.html" %}
+            </div>
+        </div>
+    {% else %}
+        <p class="nonefound">{% trans "No products found." %}</p>
+    {% endif %}
+
+    {% for category in child_categories %}
+        <h2>{{ category.name }}</h2>
+        {% for product in category.products.all|dictsort:"stockrecord.price_excl_tax" %}
+            <div>
+                <h3>{{ product.title }}</h3>
+                <p>Price: {{ product.stockrecord.price_excl_tax }}</p>
+            </div>
+        {% endfor %}
+    {% endfor %}
+<div class="col-sm-4">
+                {% csrf_token %}
+              <!-- Filter options -->
+              <div class="container mt-4">
+                <h2>Filters</h2>
+
+                <!-- Star rating -->
+                <div class="mb-4">
+                  <h4>Star Rating</h4>
+                <div class="form-check">
+                    <input class="form-check-input rating-checkbox" type="checkbox" id="2stars" value="2.0">
+                        <label class="form-check-label" for="2stars">
+                            <i class="fas fa-star"></i>
+                            <i class="fas fa-star"></i>
+                        </label>
+                </div>
+                <div class="form-check">
+                    <input class="form-check-input rating-checkbox" type="checkbox" id="3stars" value="3.0">
+                    <label class="form-check-label" for="3stars">
+                            <i class="fas fa-star"></i>
+                            <i class="fas fa-star"></i>
+                            <i class="fas fa-star"></i>
+                    </label>
+                </div>
+                <div class="form-check">
+                    <input class="form-check-input rating-checkbox" type="checkbox" id="4stars" value="4.0">
+                    <label class="form-check-label" for="4stars">
+                            <i class="fas fa-star"></i>
+                            <i class="fas fa-star"></i>
+                            <i class="fas fa-star"></i>
+                            <i class="fas fa-star"></i>
+                    </label>
+                </div>
+                <div class="form-check">
+                    <input class="form-check-input rating-checkbox" type="checkbox" id="5stars" value="5.0">
+                    <label class="form-check-label" for="5stars">
+                            <i class="fas fa-star"></i>
+                            <i class="fas fa-star"></i>
+                            <i class="fas fa-star"></i>
+                            <i class="fas fa-star"></i>
+                            <i class="fas fa-star"></i>
+                    </label>
+                </div>
+
+                </div>
+
+                <!-- Amenities -->
+                <div class="mb-4 amenities sticky">
+                  <h4>Amenities</h4>
+
+                  <!-- Repeat for other amenities -->
+                </div>
+
+                <!-- Distance -->
+                <div class="mb-4">
+                  <h4>Distance</h4>
+                  <div class="form-check">
+                    <input class="form-check-input distance-checkbox" type="checkbox" id="5km" value="5.0">
+                    <label class="form-check-label distance-checkbox" for="5km">Less than 5 km</label>
+                  </div>
+                  <div class="form-check">
+                    <input class="form-check-input distance-checkbox" type="checkbox" id="3km" value="3.0">
+                    <label class="form-check-label distance-checkbox" for="3km">Less than 3 km</label>
+                  </div>
+                  <div class="form-check">
+                    <input class="form-check-input distance-checkbox" type="checkbox" id="1km" value="1.0">
+                    <label class="form-check-label distance-checkbox" for="1km">Less than 1 km</label>
+                  </div>
+                                    </div>
+                    <button type="button" class="btn btn-primary" onclick="event.preventDefault(); resetFilters()">Reset</button>
+                    <button type="button" class="btn btn-primary" onclick="event.preventDefault(); filters()">Apply</button>
+              </div>
+                </div>
+                  <!-- Repeat for other board types -->
     <form method="get">
         {# Render other search params as hidden inputs #}
         {% for value in selected_facets %}
@@ -63,109 +191,57 @@
         {% endif %}
     </form>
 
-    {% if products %}
-        <section>
-            <div id="product-list">
-                <ol class="row list-unstyled ml-0 pl-0">
-                    {% for product in products %}
-                        <li class="col-sm-6 col-md-4 col-lg-3">{% render_product product %}</li>
-                    {% endfor %}
-                </ol>
-                {% include "oscar/partials/pagination.html" %}
-            </div>
-        </section>
-    {% else %}
-        <p class="nonefound">{% trans "No products found." %}</p>
-    {% endif %}
+</div>
 
-    {% for category in child_categories %}
-        <h2>{{ category.name }}</h2>
-        {% for product in category.products.all|dictsort:"stockrecord.price_excl_tax" %}
-            <div>
-                <h3>{{ product.title }}</h3>
-                <p>Price: {{ product.stockrecord.price_excl_tax }}</p>
-            </div>
-        {% endfor %}
-    {% endfor %}
-            <nav class="navbar navbar-expand-lg navbar-light bg-light">
-                <a class="navbar-brand" href="#">Hotel Filters</a>
-              </nav>
-                {% csrf_token %}
-              <!-- Filter options -->
-              <div class="container mt-4">
-                <h2>Filters</h2>
-
-                <!-- Star rating -->
-                <div class="mb-4">
-                  <h4>Star Rating</h4>
-                <div class="form-check">
-                    <input class="form-check-input rating-checkbox" type="checkbox" id="2stars" value="2.0">
-                    <label class="form-check-label" for="2stars">2 stars</label>
-                </div>
-                <div class="form-check">
-                    <input class="form-check-input rating-checkbox" type="checkbox" id="3stars" value="3.0">
-                    <label class="form-check-label" for="3stars">3 stars</label>
-                </div>
-                <div class="form-check">
-                    <input class="form-check-input rating-checkbox" type="checkbox" id="4stars" value="4.0">
-                    <label class="form-check-label" for="4stars">4 stars</label>
-                </div>
-                <div class="form-check">
-                    <input class="form-check-input rating-checkbox" type="checkbox" id="5stars" value="5.0">
-                    <label class="form-check-label" for="5stars">5 stars</label>
-                </div>
-
-                </div>
-
-                <!-- Amenities -->
-                <div class="mb-4 amenities sticky">
-                  <h4>Amenities</h4>
-
-                  <!-- Repeat for other amenities -->
-                </div>
-
-                <!-- Distance -->
-                <div class="mb-4">
-                  <h4>Distance</h4>
-                  <div class="form-check">
-                    <input class="form-check-input distance-checkbox" type="checkbox" id="5km" value="5.0">
-                    <label class="form-check-label distance-checkbox" for="5km">Less than 5 km</label>
-                  </div>
-                  <div class="form-check">
-                    <input class="form-check-input distance-checkbox" type="checkbox" id="3km" value="3.0">
-                    <label class="form-check-label distance-checkbox" for="3km">Less than 3 km</label>
-                  </div>
-                  <div class="form-check">
-                    <input class="form-check-input distance-checkbox" type="checkbox" id="1km" value="1.0">
-                    <label class="form-check-label distance-checkbox" for="1km">Less than 1 km</label>
-                  </div>
-                </div>
-                  <!-- Repeat for other board types -->
-                </div>
-                    <button type="button" class="btn btn-primary" onclick="event.preventDefault(); resetFilters()">Reset</button>
-                    <button type="button" class="btn btn-primary" onclick="event.preventDefault(); filters()">Apply</button>
-              </div>
     <script>
-        // Define your amenities
-        let amenities = ["SWIMMING_POOL", "SPA", "FITNESS_CENTER", "AIR_CONDITIONING", "RESTAURANT", "PARKING",
-        "PETS_ALLOWED", "AIRPORT_SHUTTLE", "BUSINESS_CENTER", "DISABLED_FACILITIES", "WIFI", "MEETING_ROOMS",
-        "NO_KID_ALLOWED", "TENNIS", "GOLF", "KITCHEN", "ANIMAL_WATCHING", "BABY-SITTING", "BEACH", "CASINO",
-        "JACUZZI", "SAUNA", "SOLARIUM", "MASSAGE", "VALET_PARKING", "BAR or LOUNGE", "KIDS_WELCOME", "NO_PORN_FILMS",
-        "MINIBAR", "TELEVISION", "WI-FI_IN_ROOM", "ROOM_SERVICE", "GUARDED_PARKG", "SERV_SPEC_MENU"];
+    let amenities = [
+        { id: "swimming_pool", name: "SWIMMING_POOL", icon: "fas fa-swimming-pool" },
+        { id: "spa", name: "SPA", icon: "fas fa-spa" },
+        { id: "fitness_center", name: "FITNESS_CENTER", icon: "fas fa-dumbbell" },
+        { id: "air_conditioning", name: "AIR_CONDITIONING", icon: "fas fa-fan" },
+        { id: "restaurant", name: "RESTAURANT", icon: "fas fa-utensils" },
+        { id: "parking", name: "PARKING", icon: "fas fa-parking" },
+        { id: "pets_allowed", name: "PETS_ALLOWED", icon: "fas fa-dog" },
+        { id: "airport_shuttle", name: "AIRPORT_SHUTTLE", icon: "fas fa-shuttle-van" },
+        { id: "business_center", name: "BUSINESS_CENTER", icon: "fas fa-briefcase" },
+        { id: "disabled_facilities", name: "DISABLED_FACILITIES", icon: "fas fa-wheelchair" },
+        { id: "wifi", name: "WIFI", icon: "fas fa-wifi" },
+        { id: "meeting_rooms", name: "MEETING_ROOMS", icon: "fas fa-users" },
+        { id: "no_kid_allowed", name: "NO_KID_ALLOWED", icon: "fas fa-child" },
+        { id: "tennis", name: "TENNIS", icon: "fas fa-baseball-ball" },
+        { id: "golf", name: "GOLF", icon: "fas fa-golf-ball" },
+        { id: "kitchen", name: "KITCHEN", icon: "fas fa-sink" },
+        { id: "animal_watching", name: "ANIMAL_WATCHING", icon: "fas fa-binoculars" },
+        { id: "baby-sitting", name: "BABY-SITTING", icon: "fas fa-baby-carriage" },
+        { id: "beach", name: "BEACH", icon: "fas fa-umbrella-beach" },
+        { id: "casino", name: "CASINO", icon: "fas fa-dice" },
+        { id: "jacuzzi", name: "JACUZZI", icon: "fas fa-hot-tub" },
+        { id: "sauna", name: "SAUNA", icon: "fas fa-hot-tub" },
+        { id: "solarium", name: "SOLARIUM", icon: "fas fa-sun" },
+        { id: "massage", name: "MASSAGE", icon: "fas fa-spa" },
+        { id: "valet_parking", name: "VALET_PARKING", icon: "fas fa-parking" },
+        { id: "bar_or_lounge", name: "BAR_or_LOUNGE", icon: "fas fa-beer" },
+        { id: "kids_welcome", name: "KIDS_WELCOME", icon: "fas fa-child" },
+        { id: "no_porn_films", name: "NO_PORN_FILMS", icon: "fas fa-film" },
+        { id: "minibar", name: "MINIBAR", icon: "fas fa-wine-glass" },
+        { id: "television", name: "TELEVISION", icon: "fas fa-tv" },
+        { id: "wi-fi_in_room", name: "WI-FI_IN_ROOM", icon: "fas fa-wifi" },
+        { id: "room_service", name: "ROOM_SERVICE", icon: "fas fa-concierge-bell" },
+        { id: "guarded_parkg", name: "GUARDED_PARKG", icon: "fas fa-shield-alt" },
+        { id: "serv_spec_menu", name: "SERV_SPEC_MENU", icon: "fas fa-clipboard-list" }
+    ];
 
-        // Generate HTML for each amenity
-        let amenitiesHTML = amenities.map(amenity => {
-          let id = amenity.toLowerCase().replace(/ /g, "-"); // Replace spaces with dashes for ID
-          return `
+    let amenitiesHTML = amenities.map(amenity => {
+        let id_with_spaces = amenity.id.replace(/_/g, ' ');
+        return `
             <div class="form-check">
-              <input class="form-check-input amenities-checkbox" type="checkbox" id="${id}" value="${amenity}">
-              <label class="form-check-label" for="${id}">${amenity}</label>
+                <input class="form-check-input amenities-checkbox" type="checkbox" id="${amenity.id}" value="${amenity.name}">
+                <label class="form-check-label" for="${amenity.id}"><i class="${amenity.icon}"></i> ${id_with_spaces}</label>
             </div>
-          `;
-        }).join(""); // Join array elements into a single string
+        `;
+    }).join("");
 
-        // Write HTML to document
-        document.querySelector(".amenities").innerHTML += amenitiesHTML;
+    document.querySelector(".amenities").innerHTML += amenitiesHTML;
 </script>
     <script>
             function findCommonAmenities(selectedAmenities, amenities) {
@@ -174,13 +250,7 @@
             }
           function filters() {
             // Get all product elements
-            const productElementings = document.querySelectorAll('.product_pod');
 
-            // Iterate over product elements
-            productElementings.forEach((productElement) => {
-            // Show all products
-                productElement.style.display = 'block';
-            });
             let selectedRatings = Array.from(document.getElementsByClassName('rating-checkbox'))
                 .filter(checkbox => checkbox.checked)
                 .map(checkbox => checkbox.value);
@@ -203,14 +273,14 @@
                 let distanceNumber = parseFloat(distance.substring(0, distance.indexOf('K')).trim());
                 let isDistanceNumberBigger = selectedDistance.every(selectedDis => distanceNumber > selectedDis);
                 if (!selectedRatings.includes(rating) && !selectedRatings.length == 0) {
-                    productElement.style.display = 'none'; // Hide the product
+                    productElement.parentElement.style.display = 'none'; // Hide the product
                 }
                 if(findCommonAmenities(selectedAmenities,amenities).length < selectedAmenities.length && !selectedAmenities.length == 0 ) {
-                    productElement.style.display = 'none'; // Hide the product
+                    productElement.parentElement.style.display = 'none'; // Hide the product
                 }
 
                 if (isDistanceNumberBigger && !selectedDistance.length == 0) {
-                    productElement.style.display = 'none'; // Hide the product
+                    productElement.parentElement.style.display = 'none'; // Hide the product
                 }
             });
         }
@@ -221,7 +291,7 @@
         // Iterate over product elements
         productElements.forEach((productElement) => {
             // Show all products
-            productElement.style.display = 'block';
+            productElement.parentElement.style.display = 'block';
         });
 
         // Uncheck all rating checkboxes
@@ -239,34 +309,6 @@
             checkbox.checked = false;
         }
     }
-    </script>
-    <script>
-    function filterProducts() {
-    let selectedRatings = Array.from(document.getElementsByClassName('rating-checkbox'))
-        .filter(checkbox => checkbox.checked)
-        .map(checkbox => checkbox.value);
-
-    fetch('{% url 'filter_products' %}', {
-        method: 'POST',
-        body: JSON.stringify(selectedRatings),
-        headers: {
-            'Content-Type': 'application/json',
-            'X-CSRFToken': '{{ csrf_token }}'
-        }
-    })
-    .then(response => response.json())
-    .then(data => {
-        let productList = document.getElementById('product-list');
-        productList.innerHTML = '';
-        let products = JSON.parse(data.products);
-        products.forEach(product => {
-            let title = product.fields.title;  // replace 'title' with the actual field name
-            let price = product.fields.price;  // replace 'price' with the actual field name
-            productList.innerHTML += `<li class="col-sm-6 col-md-4 col-lg-3">${title} - ${price}</li>`;
-        });
-    });
-}
-
     </script>
 
 

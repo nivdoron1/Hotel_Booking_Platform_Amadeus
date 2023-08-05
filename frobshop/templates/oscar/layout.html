@@ -21,11 +21,11 @@
 
     {# Main content of page - other layout templates may override this block #}
     {% block content_wrapper %}
-        <div class="container page">
-            <div class="page_inner">
+        <div class="container page" style="font-family: monospace">
+            <div class="page_inner" style="font-family: monospace">
                 {% block breadcrumbs %}{% endblock %}
                 {% block header %}
-                    <div class="page-header">
+                    <div class="page-header" style="font-family: monospace">
                         <h1>{% block headertext %}{% endblock %}</h1>
                     </div>
                 {% endblock %}

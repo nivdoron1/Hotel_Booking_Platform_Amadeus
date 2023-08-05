@@ -16,6 +16,108 @@
     {{ product.get_meta_description }}
 {% endblock %}
 {% block breadcrumbs %}
+<style>
+    .cta {
+ position: relative;
+ margin: auto;
+ padding: 12px 18px;
+ transition: all 0.2s ease;
+ border: none;
+ background: none;
+}
+
+.cta:before {
+ content: "";
+ position: absolute;
+ top: 0;
+ left: 0;
+ display: block;
+ border-radius: 50px;
+ background: #b1dae7;
+ width: 45px;
+ height: 45px;
+ transition: all 0.3s ease;
+}
+
+.cta span {
+ position: relative;
+ font-family: "Ubuntu", sans-serif;
+ font-size: 18px;
+ font-weight: 700;
+ letter-spacing: 0.05em;
+ color: #234567;
+}
+
+.cta svg {
+ position: relative;
+ top: 0;
+ margin-left: 10px;
+ fill: none;
+ stroke-linecap: round;
+ stroke-linejoin: round;
+ stroke: #234567;
+ stroke-width: 2;
+ transform: translateX(-5px);
+ transition: all 0.3s ease;
+}
+
+.cta:hover:before {
+ width: 100%;
+ background: #b1dae7;
+}
+
+.cta:hover svg {
+ transform: translateX(0);
+}
+
+.cta:active {
+ transform: scale(0.95);
+}
+
+.card {
+ margin: 0 auto;
+ background-color: #F8FBFE;
+ border-radius: 8px;
+ z-index: 1;
+}
+div#formatted_description {
+    font-family: cursive;
+}
+.tools {
+ display: flex;
+ align-items: center;
+ padding: 9px;
+}
+
+.circle {
+ padding: 0 4px;
+}
+
+.box {
+ display: inline-block;
+ align-items: center;
+ width: 10px;
+ height: 10px;
+ padding: 1px;
+ border-radius: 50%;
+}
+
+.red {
+ background-color: #ff605c;
+}
+
+.yellow {
+ background-color: #ffbd44;
+}
+
+.green {
+ background-color: #00ca4e;
+}
+.col-sm-6.product_main h1 {
+    font-size: large;
+}
+</style>
+
     <nav aria-label="breadcrumb">
         <ol class="breadcrumb">
             <li class="breadcrumb-item"><a href="{{ homepage_url }}">{% trans "Home" %}</a></li>
@@ -64,8 +166,7 @@
                     <small><i class="fas fa-pencil-alt"></i> {% trans "Edit this product" %}</small>
                 </a>
             {% endif %}
-            <h1></h1>
-
+            <h1>{{ product.title }}</h1>
             {% block product_stock_record %}
                 {% include "oscar/catalogue/partials/stock_record.html" with verbose=1 %}
             {% endblock %}
@@ -78,16 +179,28 @@
 
             {% if not product.is_parent %}
             {% block product_basket_form %}
-                <a href="{% url 'add_to_basket_and_checkout' product.id %}" class="btn btn-primary">Buy Now</a>
+                <button class="cta">
+                        <span>
+                            <a href="{% url 'add_to_basket_and_checkout' product.id %}" class="btn btn-primary">Buy Now</a></a></span><br>
+                          <svg viewBox="0 0 13 10" height="10px" width="15px">
+                            <path d="M1,5 L11,5"></path>
+                            <polyline points="8 1 12 5 8 9"></polyline>
+                          </svg>
+                </button>
             {% endblock %}
             {% else %}
                 {% block variants %}
-                    <h2>{% trans 'Offers:' %}</h2>
                     {% for child in product.children.public %}
                         {% purchase_info_for_product request child as child_session %}
                         {% if child_session.availability.is_available_to_buy %}
-                            <a href="{{ child.get_absolute_url }}" id="child-product-title" data-title="{{ child.get_title }}"></a><br>
-                        {% endif %}
+                        <button class="cta">
+                            <span> <a href="{{ child.get_absolute_url }}" id="child-product-title" data-title="{{ child.get_title }}"></a></span><br>
+                              <svg viewBox="0 0 13 10" height="10px" width="15px">
+                                <path d="M1,5 L11,5"></path>
+                                <polyline points="8 1 12 5 8 9"></polyline>
+                              </svg>
+                        </button>
+            {% endif %}
                     {% endfor %}
                 {% endblock %}
             {% endif %}
@@ -98,92 +211,106 @@
 
 {% block product_description %}
 {% if product.description %}
-    <div id="product_description" class="sub-header">
+    <div class="card">
+  <div class="tools">
+    <div class="circle">
+      <span class="red box"></span>
+    </div>
+    <div class="circle">
+      <span class="yellow box"></span>
+    </div>
+    <div class="circle">
+      <span class="green box"></span>
+    </div>
+  </div>
+  <div class="card__content">
+          <div id="product_description" class="sub-header">
         <h2>{% trans "Product Description" %}</h2>
     </div>
     <div id="formatted_description"></div>
-    <script>
-        // Wrap the code inside DOMContentLoaded event
-        document.addEventListener('DOMContentLoaded', (event) => {
-            // Parse the JSON description
-            let description = JSON.parse('{{ product.description|escapejs }}');
+  </div>
+</div>
+<script>
+    // Wrap the code inside DOMContentLoaded event
+    document.addEventListener('DOMContentLoaded', (event) => {
+        // Parse the JSON description
+        let description = JSON.parse('{{ product.description|escapejs }}');
+        let title_of_child_product = ''; // Define the variable
 
-            // Function to handle nested objects and arrays
-            function handleNested(key, value, result) {
-                if (Array.isArray(value)) {
-                    result += key + ': [' + '<br>';
-                    for (let i = 0; i < value.length; i++) {
-                        result = traverseObject(value[i], result + '&nbsp;&nbsp;&nbsp;&nbsp;');
-                    }
-                    result += ']' + '<br>';
+        function formatKeyOrValue(str) {
+            return str.toLowerCase().replace(/_/g, ' ');
+        }
+
+        function traverseObject(obj, result = '') {
+            for (let key in obj) {
+                let formattedKey = formatKeyOrValue(key);
+                let formattedValue;
+
+                if (typeof obj[key] === 'object' && obj[key] !== null) {
+                    // Convert object or array into a JSON string, remove the opening and closing braces or brackets,
+                    // replace any inner double quotes with single quotes, and replace underscores with spaces
+                    formattedValue = JSON.stringify(obj[key], null, 2)
+                        .slice(1, -1)
+                        .replace(/"/g, "'")
+                        .replace(/_/g, ' ');
                 } else {
-                    result += key + ': {' + '<br>';
-                    result = traverseObject(value, result + '&nbsp;&nbsp;&nbsp;&nbsp;');
-                    result += '}' + '<br>';
+                    formattedValue = typeof obj[key] === 'string' ? formatKeyOrValue(obj[key]) : obj[key];
                 }
-                return result;
-            }
 
-            let title_of_child_product = ''; // Define the variable
+                result += formattedKey + ': ' + formattedValue + '<br>';
 
-            function traverseObject(obj, result = '') {
-                for (let key in obj) {
-                    if (typeof obj[key] === 'object' && obj[key] !== null) {
-                        result = handleNested(key, obj[key], result);
-                    } else {
-                        result += key + ': ' + obj[key] + '<br>';
-
-                        // Check if key is 'room description' or 'room type category'
-                        if (key === 'room description' || key === 'room type category') {
-                            title_of_child_product += obj[key] + ' ';
-                        }
-                    }
+                // Check if key is 'room description' or 'room type category'
+                if (formattedKey === 'room description' || formattedKey === 'room type category') {
+                    title_of_child_product += formattedValue + ' ';
                 }
-                return result;
             }
+            return result;
+        }
 
-            // Generate the formatted description
-            let formatted_description = traverseObject(description);
-            document.querySelector('h1').textContent = title_of_child_product;
+        // Generate the formatted description
+        let formatted_description = traverseObject(description);
+        document.querySelector('h1').textContent = title_of_child_product;
 
-            // Insert the formatted description into the HTML
-            document.getElementById('formatted_description').innerHTML = formatted_description;
-        });
-    </script>
+        // Insert the formatted description into the HTML
+        document.getElementById('formatted_description').innerHTML = formatted_description;
+    });
+</script>
+
     <script>
             window.addEventListener('DOMContentLoaded', (event) => {
                 document.querySelectorAll('#child-product-title').forEach((el) => {
                    let titleParts = el.dataset.title.split(",");  // Split the title into an array of parts
                    let title = titleParts.slice(1).join(",");  // Join all parts starting from the second one
                    if (title) {
+                        title=title.replace(/_/g, ' ')
                         el.innerText = title;  // Set the second part as the link text
                    }
                 });
             });
     </script>
-<script>
-$(document).ready(function() {
-  $('.btn-primary').click(function(e) {
-    e.preventDefault();
+    <script>
+    $(document).ready(function() {
+      $('.btn-primary').click(function(e) {
+        e.preventDefault();
 
-    var selectedRatings = [];
-    $('input[type=checkbox]:checked').each(function() {
-      selectedRatings.push($(this).attr('id'));
-    });
+        var selectedRatings = [];
+        $('input[type=checkbox]:checked').each(function() {
+          selectedRatings.push($(this).attr('id'));
+        });
 
-    $.ajax({
-      url: '/filter_products/',  // Update with your endpoint
-      type: 'get',
-      data: {
-        'ratings': selectedRatings
-      },
-      success: function(response) {
-        // Update your product list with the returned data
-      }
+        $.ajax({
+          url: '/filter_products/',  // Update with your endpoint
+          type: 'get',
+          data: {
+            'ratings': selectedRatings
+          },
+          success: function(response) {
+            // Update your product list with the returned data
+          }
+        });
+      });
     });
-  });
-});
-</script>
+    </script>
 {% endif %}
 
 {% endblock %}
@@ -208,14 +335,6 @@ $(document).ready(function() {
             <tr>
                 <th>{% trans "Price (excl. tax)" %}</th><td>{{ session.price.excl_tax|currency:session.price.currency }}</td>
             </tr>
-            {% if session.price.is_tax_known %}
-                <tr>
-                    <th>{% trans "Price (incl. tax)" %}</th><td>{{ session.price.incl_tax|currency:session.price.currency }}</td>
-                </tr>
-                <tr>
-                    <th>{% trans "Tax" %}</th><td>{{ session.price.tax|currency:session.price.currency }}</td>
-                </tr>
-            {% endif %}
             <tr>
                 <th>{% trans "Availability" %}</th>
                 <td>{{ session.availability.message }}</td>
@@ -227,12 +346,6 @@ $(document).ready(function() {
                 <td>{{ av.value_as_html }}</td>
             </tr>
         {% endfor %}
-        {% iffeature "reviews" %}
-            <tr>
-                <th>{% trans "Number of reviews" %}</th>
-                <td>{{ product.num_approved_reviews }}</td>
-            </tr>
-        {% endiffeature %}
     </table>
     {% endblock %}
 
@@ -252,8 +365,6 @@ $(document).ready(function() {
     {% endwith %}
 
     {% recently_viewed_products current_product=product %}
-
-
 </article><!-- End of product page -->
 {% endblock content %}
 
