@@ -28,7 +28,7 @@ api_secret = 'FbeNpLvRVzY25yW2'
 USERNAME = None
 from django.shortcuts import redirect
 from django.contrib.auth.decorators import login_required
-from oscar.apps.catalogue.models import Product, ProductImage
+from oscar.apps.catalogue.models import Product, ProductImage, Category
 
 """
 Adds a product to the basket and redirects to the checkout page.
@@ -117,7 +117,7 @@ class HandleHotel:
 
     def __init__(self):
         self.hotels_list = {}
-        self.remove_hotels(offer_id=None)
+        #self.remove_hotels(offer_id=None)
 
     """
     Removes hotels from the database.
@@ -125,9 +125,14 @@ class HandleHotel:
     @param offer_id: The ID of the offer to remove. If None, removes all hotels.
     """
 
-    def remove_hotels(self, offer_id):
+    def remove_hotels(self, offer_id,category):
         if offer_id is None:
-            Product.objects.all().delete()
+
+            # Get all products in the 'hello' category
+            products_in_category = Product.objects.filter(categories__in=[category])
+
+            # Delete all these products
+            products_in_category.delete()
         elif self.hotels_list is {}:
             return ""
         else:
@@ -297,7 +302,7 @@ def add_parent_product(title, description, category, image_data, partner="Defaul
 
 
 handel = HandleHotel()
-handel.remove_hotels(offer_id=None)
+#handel.remove_hotels(offer_id=None)
 
 access_token = access_token_builder(api_key=api_key, api_secret=api_secret)
 
@@ -603,8 +608,8 @@ def get_hotel_offers(request):
     username = get_username(request=request)
     category = create_new_category(username)
     request.session['location'] = location
-    handel.remove_hotels(offer_id=None)
-    hotel_offers = get_hotel_offer_list(lat=lat, lng=lng, checkInDate=checkInDate, category=category,
+    handel.remove_hotels(offer_id=None,category=category)
+    hotel_offers = get_hotel_offer_list(username=username,lat=lat, lng=lng, checkInDate=checkInDate, category=category,
                                         checkOutDate=checkOutDate, adults=adults, roomQuantity=roomQuantity)
     user, domain = username.split('@')
     dom, dotdomain = domain.split('.')
@@ -636,8 +641,8 @@ def get_hotel_offer(request, alert_id):
     username = get_username(request=request)
     category = create_new_category(username)
     hotel_id = alert.hotel_id
-    handel.remove_hotels(offer_id=None)
-    hotel_offers = get_hotel_offer_list(lat=lat, lng=lng, checkInDate=checkInDate, category=category,
+    handel.remove_hotels(offer_id=None,category=category)
+    hotel_offers = get_hotel_offer_list(username=username,lat=lat, lng=lng, checkInDate=checkInDate, category=category,
                                         checkOutDate=checkOutDate, adults=adults, roomQuantity=roomQuantity,
                                         hotel_id=hotel_id)
     user, domain = username.split('@')
@@ -924,7 +929,7 @@ It calls the Amadeus API and returns a list of hotel offers.
 """
 
 
-def get_hotel_offer_list(lat, lng, category, checkInDate, checkOutDate, adults, roomQuantity, paymentPolicy="NONE",
+def get_hotel_offer_list(username,lat, lng, category, checkInDate, checkOutDate, adults, roomQuantity, paymentPolicy="NONE",
                          bestRateOnly="false", hotel_id=None):
     url = "https://api.amadeus.com/v3/shopping/hotel-offers"
     headers = {
@@ -987,7 +992,8 @@ def get_hotel_offer_list(lat, lng, category, checkInDate, checkOutDate, adults, 
             parent_description = json.dumps(hotel_details, indent=4)
             # print(parent_description)
             image = images_of_hotel(hotel_desc)
-            parent_product = add_parent_product(title=hotel_id, description=parent_description, image_data=image,
+
+            parent_product = add_parent_product(title=username+","+hotel_id, description=parent_description, image_data=image,
                                                 category=category)
             update_product_review_score(parent_product, hotel_stars)
             childs_list = []

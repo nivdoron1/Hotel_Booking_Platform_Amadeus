@@ -112,24 +112,8 @@
         </div>
     {% endblock order_actions %}
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script> <!-- Include jQuery -->
-<script>
-    $(document).ready(function() {
-        $.ajax({
-            url: "{% url 'add_elements_to_order' %}",
-            type: "POST",
-            data: {
-                order_number: "{{ order.number }}",
-                csrfmiddlewaretoken: "{{ csrf_token }}"
-            },
-            success: function(response) {
-                console.log("Order updated successfully");
-            },
-            error: function(response) {
-                console.log("Failed to update order");
-            }
-        });
-    });
-</script>
+<script src="/static/js/checkout/thank_you.js"></script>
+
 {% endblock content %}
 
 {% block tracking %}

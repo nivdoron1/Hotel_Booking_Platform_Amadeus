@@ -30,9 +30,15 @@
 {% endblock %}
 
 {% block tabcontent %}
-
-    {% if orders or form.is_bound %}
-        <div class="card card-body bg-light">
+<div class="row- col-sm-6 col-md-6" style="
+    display: contents;
+    flex-direction: column;
+    justify-content: space-evenly;
+    align-items: flex-end;
+    align-content: space-between;
+">
+        {% if orders or form.is_bound %}
+        <div class="card card-body bg-light" style=" width: 156%; ">
             <h2>{% trans "Filter" %}</h2>
             <form method="get">
                 {% include "oscar/partials/form_fields.html" with form=form style='horizontal' %}
@@ -82,3 +88,4 @@
     {% endif %}
 
 {% endblock tabcontent %}
+</div>

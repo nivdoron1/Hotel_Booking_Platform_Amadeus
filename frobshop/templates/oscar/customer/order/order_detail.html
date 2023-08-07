@@ -9,7 +9,6 @@
         <a href="{% url 'customer:order-list' %}">{% trans 'Order history' %}</a>
     </li>
 {% endblock %}
-
 {% block tabcontent %}
     {% if order.status %}
     <h2>{% trans 'Status' %}</h2>

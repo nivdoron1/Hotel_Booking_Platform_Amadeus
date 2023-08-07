@@ -16,107 +16,11 @@
     {{ product.get_meta_description }}
 {% endblock %}
 {% block breadcrumbs %}
-<style>
-    .cta {
- position: relative;
- margin: auto;
- padding: 12px 18px;
- transition: all 0.2s ease;
- border: none;
- background: none;
-}
+<head>
+    <link rel="stylesheet" href="/static/css/catalogue/catalogue_detail_style.css" type="text/css">
+        <link rel="stylesheet" href="/static/css/catalogue/map.css" type="text/css">
 
-.cta:before {
- content: "";
- position: absolute;
- top: 0;
- left: 0;
- display: block;
- border-radius: 50px;
- background: #b1dae7;
- width: 45px;
- height: 45px;
- transition: all 0.3s ease;
-}
-
-.cta span {
- position: relative;
- font-family: "Ubuntu", sans-serif;
- font-size: 18px;
- font-weight: 700;
- letter-spacing: 0.05em;
- color: #234567;
-}
-
-.cta svg {
- position: relative;
- top: 0;
- margin-left: 10px;
- fill: none;
- stroke-linecap: round;
- stroke-linejoin: round;
- stroke: #234567;
- stroke-width: 2;
- transform: translateX(-5px);
- transition: all 0.3s ease;
-}
-
-.cta:hover:before {
- width: 100%;
- background: #b1dae7;
-}
-
-.cta:hover svg {
- transform: translateX(0);
-}
-
-.cta:active {
- transform: scale(0.95);
-}
-
-.card {
- margin: 0 auto;
- background-color: #F8FBFE;
- border-radius: 8px;
- z-index: 1;
-}
-div#formatted_description {
-    font-family: cursive;
-}
-.tools {
- display: flex;
- align-items: center;
- padding: 9px;
-}
-
-.circle {
- padding: 0 4px;
-}
-
-.box {
- display: inline-block;
- align-items: center;
- width: 10px;
- height: 10px;
- padding: 1px;
- border-radius: 50%;
-}
-
-.red {
- background-color: #ff605c;
-}
-
-.yellow {
- background-color: #ffbd44;
-}
-
-.green {
- background-color: #00ca4e;
-}
-.col-sm-6.product_main h1 {
-    font-size: large;
-}
-</style>
+</head>
 
     <nav aria-label="breadcrumb">
         <ol class="breadcrumb">
@@ -229,6 +133,12 @@ div#formatted_description {
     </div>
     <div id="formatted_description"></div>
   </div>
+<div class="map">
+    <div class="clear"></div>
+    <figure class="">
+            <iframe id="map_iframe" src="..."></iframe>
+    </figure>
+    </div>
 </div>
 <script>
     // Wrap the code inside DOMContentLoaded event
@@ -273,44 +183,52 @@ div#formatted_description {
 
         // Insert the formatted description into the HTML
         document.getElementById('formatted_description').innerHTML = formatted_description;
+        let latitudePattern = /latitude: ([\d.-]+)/;
+        let longitudePattern = /longitude: ([\d.-]+)/;
+
+        let latitudeMatch = formatted_description.match(latitudePattern);
+        let longitudeMatch = formatted_description.match(longitudePattern);
+
+        let latitude = latitudeMatch ? parseFloat(latitudeMatch[1]) : null;
+        let longitude = longitudeMatch ? parseFloat(longitudeMatch[1]) : null;
+        document.getElementById('map_iframe').src = `https://maps.google.com/maps?f=q&source=s_q&hl=en&geocode=&q=${latitude},${longitude}&ll=${latitude},${longitude}&z=14&output=embed`;
     });
 </script>
-
-    <script>
-            window.addEventListener('DOMContentLoaded', (event) => {
-                document.querySelectorAll('#child-product-title').forEach((el) => {
-                   let titleParts = el.dataset.title.split(",");  // Split the title into an array of parts
-                   let title = titleParts.slice(1).join(",");  // Join all parts starting from the second one
-                   if (title) {
-                        title=title.replace(/_/g, ' ')
-                        el.innerText = title;  // Set the second part as the link text
-                   }
-                });
+<script>
+        window.addEventListener('DOMContentLoaded', (event) => {
+            document.querySelectorAll('#child-product-title').forEach((el) => {
+               let titleParts = el.dataset.title.split(",");  // Split the title into an array of parts
+               let title = titleParts.slice(1).join(",");  // Join all parts starting from the second one
+               if (title) {
+                    title=title.replace(/_/g, ' ')
+                    el.innerText = title;  // Set the second part as the link text
+               }
             });
-    </script>
-    <script>
-    $(document).ready(function() {
-      $('.btn-primary').click(function(e) {
-        e.preventDefault();
-
-        var selectedRatings = [];
-        $('input[type=checkbox]:checked').each(function() {
-          selectedRatings.push($(this).attr('id'));
         });
+</script>
+<script>
+$(document).ready(function() {
+  $('.btn-primary').click(function(e) {
+    e.preventDefault();
 
-        $.ajax({
-          url: '/filter_products/',  // Update with your endpoint
-          type: 'get',
-          data: {
-            'ratings': selectedRatings
-          },
-          success: function(response) {
-            // Update your product list with the returned data
-          }
-        });
-      });
+    let selectedRatings = [];
+    $('input[type=checkbox]:checked').each(function() {
+      selectedRatings.push($(this).attr('id'));
     });
-    </script>
+
+    $.ajax({
+      url: '/filter_products/',  // Update with your endpoint
+      type: 'get',
+      data: {
+        'ratings': selectedRatings
+      },
+      success: function(response) {
+        // Update your product list with the returned data
+      }
+    });
+  });
+});
+</script>
 {% endif %}
 
 {% endblock %}

@@ -3,38 +3,9 @@
 {% load image_tags %}
 {% load reviews_tags %}
 {% block product %}
-<style>
-     *,@import url('https://fonts.googleapis.com/css2?family=Inter:wght@100;200;300;400;500;600;700;800;900&display=swap');
-
-
-    body {
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      background-color: #C1BFFA;
-      font-family: inter, sans-serif;
-    }
-
-    .container {
-        flex-direction: row;
-        align-items: flex-start;
-        position: relative;
-        width: fit-content;
-        height: fit-content;
-        border-radius: 16px;
-        background-color: white;
-        border: 2px solid #1B1B1B;
-        box-sizing: border-box;
-        box-shadow: 6px 6px 0px #1B1B1B;
-        border-radius: 8px;
-        flex-wrap: nowrap;
-    }
-
-    header.header.container {
-    width: 90%;
-}
-</style>
-
+<head>
+    <link rel="stylesheet" href="/static/css/catalogue/catalogue_product_style.css" type="text/css">
+</head>
 
     <article class="product_pod" data-price="{% if product.is_parent %}
     {{ product.children.all.0.stockrecords.first.price }}
@@ -67,7 +38,7 @@
 
         {% block product_title %}
             <h3 class="mt-3">
-                <a href="{{ product.get_absolute_url }}" title="{{ product.get_title }}">
+                <a id="product_title" href="{{ product.get_absolute_url }}" title="{{ product.get_title }}" data-title="{{ product.get_title }}">
                     {{ product.get_title|truncatewords:4 }}
                 </a>
             </h3>
@@ -81,5 +52,6 @@
                 {% endif %}
             </div>
         {% endblock %}
+        <script src="/static/js/catalogue/product.js"></script>
     </article>
 {% endblock %}

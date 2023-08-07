@@ -5,23 +5,31 @@ Keep the same header and footer as the standard layout template but override the
 main content area to split it into a sidebar and a content block
 {% endcomment %}
 {% block content_wrapper %}
+<head>
+    <link rel="stylesheet" href="/static/css/layout_2_col.css" type="text/css">
+</head>
 <div class="{% block content_wrapper_classes %}container page{% endblock %}" style="font-family: monospace">
     <div class="page_inner" style="font-family: monospace">
         {% block breadcrumbs %}{% endblock %}
-        <div class="row" style="font-family: monospace">
+        <div class="column" style="font-family: monospace">
             {% block header %}
                 <div class="page-header" style="font-family: monospace">
                     <h1>{% block headertext %}{% endblock %}</h1>
                 </div>
                 {% endblock %}
-            <div class="row" style="flex-direction:row-reverse">
-
-
-                {% include "oscar/partials/alert_messages.html" %}
-
+            <div class="row">
+            <aside class="sidebar col-sm-4 col-md-3">
+                {% block column_left %}{% endblock %}
+                {% block column_left_extra %}{% endblock %}
+            </aside>
+                <div class="row" style="flex-direction:row-reverse">
+                <div>
+                        {% include "oscar/partials/alert_messages.html" %}
+                </div>
                 {% block pre_content %}{% endblock %}
                 {% block content %}{% endblock %}
             </div>
+                </div>
 
         </div><!-- /row -->
         {% if '/catalogue/category/' in request.path %}

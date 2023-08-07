@@ -1,0 +1,49 @@
+ #search-container {
+            width: auto;
+            display: flex;
+            flex-direction: column;
+            position: relative;
+        }
+
+        #location {
+                width: fit-content;
+                font-size: 12px;
+                margin-bottom: 40px;
+                height: 40px;
+            }
+        #results {
+                border: 1.2px solid #000;
+                overflow-y: auto;
+                width: fit-content;
+                z-index: 1;
+                position: absolute;
+                top: 62%;
+                background: #fff;
+                /* list-style: none; */
+                padding: 0;
+                margin: 0;
+                /* z-index: 999; */
+                line-break: 3rm;
+                /* display: none; */
+                /* position: absolute; */
+                /* background-color: #f9f9f9; */
+                /* min-width: 160px; */
+                box-shadow: -2px -20px 8px 5px rgb(176 176 176 / 53%);
+                /* z-index: 1; */
+                /* height: fit-content; */
+            }
+
+        .location-button {
+                width: 100%; /* Update the width of location-button to match the container */
+                text-align: left;
+                border: none;
+                background: none;
+                padding: 5px;
+                font-size: 10px; /* Reduce the font size */
+                max-height: 20px;
+                font-size: 10px; /* Set the font size to 10px */
+            }
+     .hero-area {
+            height: 549px;
+            padding-top: 120px;
+        }

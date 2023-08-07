@@ -1,0 +1,38 @@
+ #search-container {
+            width: auto;
+            display: flex;
+            flex-direction: column;
+            position: relative;
+        }
+
+        #location {
+                width: fit-content;
+                font-size: 12px;
+                margin-bottom: 40px;
+                height: 40px;
+            }
+
+            #results {
+                border: 1px solid #000;
+                /* max-height: 100px; */
+                overflow-y: auto;
+                width: fit-content;
+                position: absolute;
+                top: 67%;
+                background: #fff;
+                list-style: none;
+                padding: 0;
+                margin: 0;
+                z-index: 1;
+            }
+
+        .location-button {
+                width: 100%; /* Update the width of location-button to match the container */
+                text-align: left;
+                border: none;
+                background: none;
+                padding: 5px;
+                font-size: 10px; /* Reduce the font size */
+                max-height: 20px;
+                font-size: 10px; /* Set the font size to 10px */
+            }
