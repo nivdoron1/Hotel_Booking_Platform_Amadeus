@@ -4,9 +4,8 @@
 {% load reviews_tags %}
 {% block product %}
 <head>
-    <link rel="stylesheet" href="/static/css/catalogue/catalogue_product_style.css" type="text/css">
-</head>
 
+</head>
     <article class="product_pod" data-price="{% if product.is_parent %}
     {{ product.children.all.0.stockrecords.first.price }}
 {% endif %}" data-rating="{{ product.rating }}" product-description="{{ product.description }}">

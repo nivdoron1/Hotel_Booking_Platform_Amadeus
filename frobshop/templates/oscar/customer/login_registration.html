@@ -6,6 +6,9 @@
 {% endblock %}
 
 {% block breadcrumbs %}
+<head>
+        <link rel="stylesheet" href="/static/css/login_registration.css" type="text/css">
+</head>
     <nav aria-label="breadcrumb">
         <ol class="breadcrumb">
             <li class="breadcrumb-item">
@@ -20,22 +23,32 @@
 
 {% block content %}
 
-    <div class="row">
+    <div class="row" >
         <div class="col-sm-6 login_form">
-            <form id="login_form" action="{{ request.get_full_path }}" method="post" class="card card-body bg-light" >
+            <form id="login_form" action="{{ request.get_full_path }}" method="post" class="login-box card card-body bg-light" >
                 <h2>{% trans 'Log In' %}</h2>
                 {% csrf_token %}
                 {% include "oscar/partials/form_fields.html" with form=login_form %}
                 <p><a href="{% url 'password-reset' %}">{% trans "I've forgotten my password" %}</a></p>
-                <button name="login_submit" type="submit" value="Log In" class="btn btn-lg btn-primary" data-loading-text="{% trans "Logging in..." %}">{% trans 'Log In' %}</button>
+                <button name="login_submit" type="submit" value="Log In" class="btn btn-lg btn-primary" data-loading-text="{% trans "Logging in..." %}">{% trans 'Log In' %}
+                <span></span>
+      <span></span>
+      <span></span>
+      <span></span>
+                </button>
             </form>
         </div>
         <div class="col-sm-6 register_form">
-            <form id="register_form" action="{{ request.get_full_path }}" method="post" class="card card-body bg-light">
+            <form id="register_form" action="{{ request.get_full_path }}" method="post" class="login-box card card-body bg-light">
                 <h2>{% trans 'Register' %}</h2>
                 {% csrf_token %}
                 {% include "oscar/partials/form_fields.html" with form=registration_form %}
-                <button name="registration_submit" type="submit" value="Register" class="btn btn-lg btn-primary" data-loading-text="{% trans 'Registering...' %}">{% trans 'Register' %}</button>
+                <button name="registration_submit" type="submit" value="Register" class="btn btn-lg btn-primary" data-loading-text="{% trans 'Registering...' %}">{% trans 'Register' %}
+                <span></span>
+      <span></span>
+      <span></span>
+      <span></span>
+                </button>
             </form>
         </div>
     </div>

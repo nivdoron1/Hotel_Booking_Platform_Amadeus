@@ -16,7 +16,7 @@
                 overflow-y: auto;
                 width: fit-content;
                 z-index: 1;
-                position: absolute;
+                position: fixed;
                 top: 62%;
                 background: #fff;
                 /* list-style: none; */
@@ -31,7 +31,8 @@
                 box-shadow: -2px -20px 8px 5px rgb(176 176 176 / 53%);
                 /* z-index: 1; */
                 /* height: fit-content; */
-            }
+                display: flow-root;
+                }`
 
         .location-button {
                 width: 100%; /* Update the width of location-button to match the container */

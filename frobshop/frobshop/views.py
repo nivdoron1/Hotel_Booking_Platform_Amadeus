@@ -471,7 +471,7 @@ def complete_purchase(request):
     card_expiry_date = request.session['card_expiry_date']
     print(len(offer_id))
     booking_response = post_booking(offer_id=offer_id, title=title, first_name=first_name, last_name=last_name,
-                                    phone=phone, email=email, method=payment_method, vendor_code=card_vendor_code,
+                                    phone=phone, email=email, method="CreditCard", vendor_code=card_vendor_code,
                                     card_number=card_number, expiry_date=card_expiry_date)
     print(booking_response)
     booking_id = booking_response['data'][0]['id']
