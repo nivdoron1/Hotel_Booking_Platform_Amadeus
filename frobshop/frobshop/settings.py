@@ -12,6 +12,9 @@ https://docs.djangoproject.com/en/3.2/ref/settings/
 import os.path
 from pathlib import Path
 from oscar.defaults import *
+
+from datetime import timedelta
+from celery.schedules import crontab
 import django.core.mail.backends.console
 
 OSCAR_DASHBOARD_NAVIGATION.append(
@@ -95,21 +98,21 @@ INSTALLED_APPS = [
     'oscar.apps.dashboard.communications.apps.CommunicationsDashboardConfig',
     'oscar.apps.dashboard.shipping.apps.ShippingDashboardConfig',
     'widget_tweaks',
+    'django_celery_results',
+    'django_celery_beat',
     'haystack',
     'treebeard',
     'frobshop.PriceAlert',
+    'offer_holding',
     'hotels',
     'sorl.thumbnail',
     'django_tables2',
     'oscar_accounts.apps.AccountsConfig',
     'oscar_accounts.dashboard.apps.AccountsDashboardConfig',
     'background_task',
-    'django_celery_results',
 ]
 SITE_ID = 1
-PAYPAL_CLIENT_ID = 'AUW-BPbcuymksaQJB929pD3DpTIUsHNVk47ZIdZthU0Q3TWeqWJjqzUo5V8Uorx_zjM6z125xUFR2vVu'
-PAYPAL_CLIENT_SECRET = 'EHP6p9yFHKkLngA4WU29k_LPK5uAxjkl7eESHN6sB0yB7B3nvrChKBna1tXSpFWMj_U-l5fZiSBm_PXQ'
-PAYPAL_API_SANDBOX_MODE = True  # Use 'False' when going to production
+
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
@@ -225,11 +228,29 @@ STATICFILES_DIRS = [
 STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
 MEDIA_URL = '/media/'
 MEDIA_ROOT = os.path.join(BASE_DIR, '/media')
+from datetime import timedelta
 
+CELERY_BEAT_SCHEDULE = {
+    'get_hotel_offer_every_day': {
+        'task': 'frobshop.tasks.get_hotel_offer_task',
+        'schedule': timedelta(days=1),
+    },
+}
 # Default primary key field type
 # https://docs.djangoproject.com/en/3.2/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 OSCAR_SHOP_NAME = "HOLIOLI"
 LOGIN_URL = '/accounts/login/'
-CELERY_RESULT_BACKEND = 'django-db'
+#CELERY_RESULT_BACKEND = 'django-db'
+CELERY_BROKER_URL = 'redis://localhost:6379/0'
+
+BROKER_URL = 'pyamqp://guest:guest@localhost:5672//'
+
+CELERY_BEAT_SCHEDULE = {
+    'hello-task': {
+        'task': 'frobshop.tasks.hello_task',
+        'schedule': timedelta(seconds=30),
+    },
+}
+

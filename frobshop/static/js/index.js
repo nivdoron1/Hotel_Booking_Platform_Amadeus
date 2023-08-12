@@ -22,7 +22,7 @@
 
                         // Append new results
                         for(let feature of data.features){
-                            $("#results").append(`<li><button class="location-button">${feature.properties.formatted}</button></li>`);
+                            $("#results").append(`<li class="location-button">${feature.properties.formatted}</li>`);
                         }
                     }
                 });

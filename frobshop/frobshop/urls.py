@@ -25,8 +25,8 @@ from . import views
 from .views import *
 from .views import MyLoginView
 from .views import add_to_basket_and_checkout
-from .views import alerts_list
-
+from .alerts import *
+from .product import *
 urlpatterns = [
                   # path('', views.index, name='home'),  # Move this to the top
                   path('i18n/', include('django.conf.urls.i18n')),
@@ -46,7 +46,7 @@ urlpatterns = [
                   path('hotel_search_auto_complete', views.hotel_search_auto_complete,
                        name='hotel_search_auto_complete'),
                   path('hotels', views.hotels, name='hotels'),
-                  path('catalogue/category/<str:username>_<int:category_id>/', views.CustomProductCategoryView.as_view(),
+                  path('catalogue/category/<str:username>_<int:category_id>/', CustomProductCategoryView.as_view(),
                        name='category'),
                   path('filter_products/', views.ProductFilterView.as_view(), name='filter_products'),
                   path('price_alerts/get_hotel_offer/<int:alert_id>/', views.get_hotel_offer, name='get_hotel_offer'),
@@ -61,8 +61,8 @@ urlpatterns = [
                   path('product_management/', include('product_management.urls')),
                   path('customer/alerts/alert_list', views.hotel_view, name='hotel_view'),
                   path('customer/alerts/', price_alerts, name='price_alerts'),
-                  path('price_alerts/', views.price_alerts, name='price_alerts'),
-                  path('price_alerts/delete/<int:alert_id>/', views.delete_alert, name='delete_alert'),
+                  path('price_alerts/', price_alerts, name='price_alerts'),
+                  path('price_alerts/delete/<int:alert_id>/', delete_alert, name='delete_alert'),
                   path('payment-details/', views.PaymentDetailsView.as_view(), name='payment-details'),
                   path('api/add-elements-to-order/', views.AddElementsToOrderView.as_view(),
                        name='add_elements_to_order'),

@@ -36,15 +36,13 @@
                     </h3>
                         {# Display the form data here #}
                         <p>
-                          Title: {{ request.session.title }} <br>
-                          First Name: {{ request.session.first_name }} <br>
-                          Last Name: {{ request.session.last_name }} <br>
-                          Phone: {{ request.session.phone }} <br>
-                          Email: {{ request.session.email }} <br>
-                          Payment Method: {{ request.session.method }} <br>
-                          Card Vendor Code: {{ request.session.vendor_code }} <br>
-                          Card Number: {{ request.session.card_number }} <br>
-                          Card Expiry Date: {{ request.session.card_expiry_date }}
+                          Title: {{ offer_info.title }} <br>
+                          First Name: {{ offer_info.first_name }} <br>
+                          Last Name: {{ offer_info.last_name }} <br>
+                          Phone: {{ offer_info.phone }} <br>
+                          Email: {{ offer_info.email }} <br>
+                          Payment Method: {{ offer_info.payment_method }} <br>
+                          Card Vendor Code: {{ offer_info.card_vendor_code }} <br>
                         </p>
                 </div>
             </div>

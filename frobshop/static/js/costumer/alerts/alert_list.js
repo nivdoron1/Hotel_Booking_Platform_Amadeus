@@ -22,7 +22,7 @@ $(document).ready(function(){
 
                                 // Append new results
                                 for(let hotelName of data.features){
-                                    $("#results").append(`<li><button class="location-button">${hotelName}</button></li>`);
+                                    $("#results").append(`<li class="location-button">${hotelName}</li>`);
                                 }
                             }
                         });
