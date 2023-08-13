@@ -882,4 +882,35 @@ section.app-actions {
         <script src="/static/js/catalogue/product.js"></script>
     </article>
 {% endblock %}
+<script>
+    cardItems.forEach((cardItem) => {
+    cardItem.addEventListener('click', function () {
+        const cardHeader = cardItem.querySelector('.cardText-js');
+        const cardPrice = cardItem.querySelector('.card-price');
+        const productUrl = cardItem.getAttribute('data-product-url'); // Assuming you set a data attribute on the card with the product's URL
 
+        modalHeader.innerText = cardHeader.innerText;
+        modalCardPrice.innerText = cardPrice.innerText;
+        document.getElementById("bookNowBtn").href = productUrl; // Set the href of the "Book Now" button
+    });
+});
+</script>
+<script>
+    const cardItems = document.querySelectorAll('.product-card');
+const modalHeader = document.querySelector('.modalHeader-js');
+const modalCardPrice = document.querySelector('.amount');
+const bookNowBtn = document.getElementById("bookNowBtn");
+
+cardItems.forEach((cardItem) => {
+    cardItem.addEventListener('click', function () {
+        const cardHeader = cardItem.querySelector('.cardText-js');
+        const cardPrice = cardItem.querySelector('.card-price');
+        const productUrl = cardItem.getAttribute('data-product-url');
+
+        modalHeader.innerText = cardHeader.innerText;
+        modalCardPrice.innerText = cardPrice.innerText;
+        bookNowBtn.href = productUrl;
+    });
+});
+
+</script>

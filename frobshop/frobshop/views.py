@@ -13,6 +13,8 @@ from django.urls import path
 from django.views.decorators.http import require_POST
 from django.views.decorators.http import require_http_methods
 from oscar.apps.checkout.views import PaymentDetailsView as CorePaymentDetailsView
+from oscar.apps.dashboard.communications.views import ListView
+
 from .PriceAlert.models import PriceAlert
 from .booking_platform import access_token_builder, hotel_auto_complete, get_hotel_offer_list, get_geocode, post_booking
 from .coding import generate_key, encrypt_card, decrypt_card
@@ -253,7 +255,7 @@ class PaymentDetailsView(CorePaymentDetailsView):
 
 
 from django.contrib import messages  # Import the messages framework
-from django.http import HttpResponseRedirect
+from django.http import HttpResponseRedirect, HttpResponse
 from oscar.core.loading import get_class
 
 # from frobshop.offer_holding.models import OfferInformation
@@ -431,6 +433,7 @@ def get_hotel_offers(request):
     category = create_new_category(username)
     request.session['location'] = location
     handel.remove_hotels(offer_id=None, category=category)
+    print(str(lat) + " " + str(lng))
     hotel_offers = get_hotel_offer_list(access_token=access_token, username=username, lat=lat, lng=lng,
                                         checkInDate=checkInDate, category=category,
                                         checkOutDate=checkOutDate, adults=adults, roomQuantity=roomQuantity)
@@ -496,10 +499,7 @@ simulated_request = SimulatedRequest(user="nivdoron1234@gmail.com")
 # This is just for testing purposes. Adjust as needed.
 alert_id = PriceAlert.objects.get(email="nivdoron1234@gmail.com") if PriceAlert.objects.exists() else None
 
-
-
 from datetime import datetime, timedelta
-
 
 """
 * Handles the index view of the website.

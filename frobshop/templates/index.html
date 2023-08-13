@@ -82,28 +82,28 @@
                         <h4>Check Availability</h4>
                         <div id="search-container" class="location">
                                 <label for="location">location</label>
-                                <input id="location" type="text" name="location" placeholder="Search location...">
+                                <input id="location" type="text" name="location" placeholder="Search location..." required>
                                 <ul id="results"></ul>
                         </div>
                         <div class="datepicker">
                             <p>From</p>
                             <label for="checkInDate">Check-In Date:</label><br>
-                            <input type="date" id="checkInDate" name="checkInDate"><br>
+                            <input type="date" id="checkInDate" name="checkInDate" required><br>
 
                         </div>
                         <div class="datepicker">
                             <p>To</p>
                             <label for="checkOutDate">Check-Out Date:</label><br>
-                            <input type="date" id="checkOutDate" name="checkOutDate"><br>
+                            <input type="date" id="checkOutDate" name="checkOutDate" required><br>
                         </div>
                         <div class="room-quantity">
                             <div class="single-quantity">
                                 <p for="adults">Adults</p>
-                                <div class="pro-qty"><input type="text" id="adults" name="adults" value="1"></div>
+                                <div class="pro-qty"><input type="text" id="adults" name="adults" value="1" required></div>
                             </div>
                             <div class="single-quantity last">
                                 <p for="roomQuantity">Rooms</p>
-                                <div class="pro-qty"><input id="roomQuantity" name="roomQuantity" type="text" value="1"></div>
+                                <div class="pro-qty"><input id="roomQuantity" name="roomQuantity" type="text" value="1" required></div>
                             </div>
                         </div>
                         <button id="submit" type="submit">submit</button>

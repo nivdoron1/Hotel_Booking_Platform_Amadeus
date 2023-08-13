@@ -113,7 +113,6 @@ INSTALLED_APPS = [
 ]
 SITE_ID = 1
 
-
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
@@ -230,27 +229,29 @@ MEDIA_URL = '/media/'
 MEDIA_ROOT = os.path.join(BASE_DIR, '/media')
 from datetime import timedelta
 
-CELERY_BEAT_SCHEDULE = {
-    'get_hotel_offer_every_day': {
-        'task': 'frobshop.tasks.get_hotel_offer_task',
-        'schedule': timedelta(days=1),
-    },
-}
+
 # Default primary key field type
 # https://docs.djangoproject.com/en/3.2/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 OSCAR_SHOP_NAME = "HOLIOLI"
 LOGIN_URL = '/accounts/login/'
-#CELERY_RESULT_BACKEND = 'django-db'
-CELERY_BROKER_URL = 'redis://localhost:6379/0'
+# CELERY_RESULT_BACKEND = 'django-db'
+# Celery configurations
+CELERY_BROKER_URL = 'redis://localhost:6379/0' # Using Redis as the message broker
 
-BROKER_URL = 'pyamqp://guest:guest@localhost:5672//'
+CELERY_RESULT_BACKEND = 'redis://localhost:6379/0'
+CELERY_ACCEPT_CONTENT = ['json']
+CELERY_TASK_SERIALIZER = 'json'
+CELERY_RESULT_SERIALIZER = 'json'
+CELERY_TIMEZONE = 'UTC'
 
-CELERY_BEAT_SCHEDULE = {
-    'hello-task': {
-        'task': 'frobshop.tasks.hello_task',
-        'schedule': timedelta(seconds=30),
-    },
-}
+#CELERY_BEAT_SCHEDULE = {
 
+    #'send-email-every-30-seconds': {
+     #   'task': 'frobshop.tasks.send_email_task',
+      #  'schedule': timedelta(seconds=30),
+ #   },
+#}
+
+OSCAR_PRODUCTS_PER_PAGE = 150

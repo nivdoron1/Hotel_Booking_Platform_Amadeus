@@ -1,3 +1,6 @@
+
+
+
  let amenities = [
         { id: "swimming_pool", name: "SWIMMING_POOL", icon: "fas fa-swimming-pool" },
         { id: "spa", name: "SPA", icon: "fas fa-spa" },
@@ -51,44 +54,44 @@
 function findCommonAmenities(selectedAmenities, amenities) {
 
                 return selectedAmenities.filter(item => amenities.includes(item));
-            }
-          function filters() {
-            returnData();
-            // Get all product elements
-            let selectedRatings = Array.from(document.getElementsByClassName('rating-checkbox'))
-                .filter(checkbox => checkbox.checked)
-                .map(checkbox => checkbox.value);
-            let selectedAmenities = Array.from(document.getElementsByClassName('amenities-checkbox'))
-                .filter(checkbox => checkbox.checked)
-                .map(checkbox => checkbox.value);
-            let selectedDistance = Array.from(document.getElementsByClassName('distance-checkbox'))
-                .filter(checkbox => checkbox.checked)
-                .map(checkbox => checkbox.value);
-            // Get all product elements
-            const productElements = document.querySelectorAll('.product_pod');
+}
+function filters() {
+    returnData();
+    // Get all product elements
+    let selectedRatings = Array.from(document.getElementsByClassName('rating-checkbox'))
+        .filter(checkbox => checkbox.checked)
+        .map(checkbox => checkbox.value);
+    let selectedAmenities = Array.from(document.getElementsByClassName('amenities-checkbox'))
+        .filter(checkbox => checkbox.checked)
+        .map(checkbox => checkbox.value);
+    let selectedDistance = Array.from(document.getElementsByClassName('distance-checkbox'))
+        .filter(checkbox => checkbox.checked)
+        .map(checkbox => checkbox.value);
+    // Get all product elements
+    const productElements = document.querySelectorAll('.product_pod');
 
-            // Iterate over product elements
-            productElements.forEach((productElement) => {
-                // Get product rating from data attribute
-                let rating = productElement.getAttribute('data-rating');
-                let description = JSON.parse(productElement.getAttribute('product-description'));
-                let amenities = description.amenities.split(', ').map(amenity => amenity.trim().toUpperCase());
-                let distance = description.distance;
-                let distanceNumber = parseFloat(distance.substring(0, distance.indexOf('K')).trim());
-                let isDistanceNumberBigger = selectedDistance.every(selectedDis => distanceNumber > selectedDis);
-                if (!selectedRatings.includes(rating) && !selectedRatings.length == 0) {
-                    productElement.parentElement.style.display = 'none'; // Hide the product
-                }
-                if(findCommonAmenities(selectedAmenities,amenities).length < selectedAmenities.length && !selectedAmenities.length == 0 ) {
-                    productElement.parentElement.style.display = 'none'; // Hide the product
-                }
-
-                if (isDistanceNumberBigger && !selectedDistance.length == 0) {
-                    productElement.parentElement.style.display = 'none'; // Hide the product
-                }
-            });
+    // Iterate over product elements
+    productElements.forEach((productElement) => {
+        // Get product rating from data attribute
+        let rating = productElement.getAttribute('data-rating');
+        let description = JSON.parse(productElement.getAttribute('product-description'));
+        let amenities = description.amenities.split(', ').map(amenity => amenity.trim().toUpperCase());
+        let distance = description.distance;
+        let distanceNumber = parseFloat(distance.substring(0, distance.indexOf('K')).trim());
+        let isDistanceNumberBigger = selectedDistance.every(selectedDis => distanceNumber > selectedDis);
+        if (!selectedRatings.includes(rating) && !selectedRatings.length == 0) {
+            productElement.parentElement.style.display = 'none'; // Hide the product
         }
-        function resetFilters() {
+        if(findCommonAmenities(selectedAmenities,amenities).length < selectedAmenities.length && !selectedAmenities.length == 0 ) {
+            productElement.parentElement.style.display = 'none'; // Hide the product
+        }
+
+        if (isDistanceNumberBigger && !selectedDistance.length == 0) {
+            productElement.parentElement.style.display = 'none'; // Hide the product
+        }
+    });
+}
+function resetFilters() {
         returnData();
         // Uncheck all rating checkboxes
         let ratingCheckboxes = document.getElementsByClassName('rating-checkbox');
@@ -105,7 +108,7 @@ function findCommonAmenities(selectedAmenities, amenities) {
             checkbox.checked = false;
         }
     }
-    function returnData() {
+function returnData() {
             // Get all product elements
         const productElements = document.querySelectorAll('.product_pod');
 
@@ -115,3 +118,7 @@ function findCommonAmenities(selectedAmenities, amenities) {
             productElement.parentElement.style.display = 'block';
         });
     }
+
+
+
+

@@ -1,0 +1,10 @@
+json
+requests
+python-dotenv
+Django
+datashape
+oscar
+cryptography
+schedule
+celery
+pathlib

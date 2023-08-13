@@ -68,7 +68,10 @@ def get_hotel_offer_list(access_token, username, lat, lng, category, checkInDate
     else:
         hotel_ids_data = get_hotel_geo_list(access_token=access_token, latitude=lat, longitude=lng)
         print(hotel_ids_data)
-        hotel_id = [d["hotelId"] for d in hotel_ids_data["data"]]
+        try:
+            hotel_id = [d["hotelId"] for d in hotel_ids_data["data"]]
+        except (KeyError, TypeError):
+            hotel_id = []
         for i in range(0, min(len(hotel_id), 5)):
             hotel_ids_d.append(hotel_ids_data["data"][i])
             hotel_ids.append(hotel_id[i])
@@ -339,7 +342,6 @@ def get_geocode(location):
     # OpenCageData API endpoint
     url = "https://api.opencagedata.com/geocode/v1/json"
 
-    # Your OpenCageData API key (replace with your actual key)
 
     # Parameters for the API request
     params = {
