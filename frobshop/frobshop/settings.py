@@ -11,6 +11,8 @@ https://docs.djangoproject.com/en/3.2/ref/settings/
 """
 import os.path
 from pathlib import Path
+
+from dotenv import load_dotenv
 from oscar.defaults import *
 
 from datetime import timedelta
@@ -179,8 +181,9 @@ EMAIL_USE_TLS = True
 EMAIL_HOST_USER = 'nivdoron1234@hotmail.com'
 OSCAR_FROM_EMAIL = 'nivdoron1234@hotmail.com'
 
-# EMAIL_HOST_PASSWORD = 'VG3PB-YWHYB-LCPBA-ZZRKM-XP6ST'
-EMAIL_HOST_PASSWORD = 'qlhrtxecdgfosmea'
+load_dotenv()
+
+EMAIL_HOST_PASSWORD = os.getenv('EMAIL_HOST_PASSWORD')
 # DEFAULT_FROM_EMAIL = EMAIL_HOST_USER  # Default from email
 # Password validation
 # https://docs.djangoproject.com/en/3.2/ref/settings/#auth-password-validators
