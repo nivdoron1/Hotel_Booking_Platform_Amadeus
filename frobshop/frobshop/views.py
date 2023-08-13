@@ -1,4 +1,17 @@
 import json
+from oscar.apps.catalogue.models import Product
+from django.views import View
+import schedule
+import time
+from django.contrib import messages  # Import the messages framework
+from django.http import HttpResponseRedirect, HttpResponse
+from oscar.core.loading import get_class
+from django.core import serializers
+from django.http import JsonResponse
+from django.views import View
+from django.db.models import Q
+from django.utils.decorators import method_decorator
+from django.views.decorators.csrf import csrf_exempt
 from dotenv import load_dotenv
 from datetime import datetime
 from decimal import Decimal
@@ -254,11 +267,7 @@ class PaymentDetailsView(CorePaymentDetailsView):
         super().handle_successful_order(order)
 
 
-from django.contrib import messages  # Import the messages framework
-from django.http import HttpResponseRedirect, HttpResponse
-from oscar.core.loading import get_class
 
-# from frobshop.offer_holding.models import OfferInformation
 
 OrderTotalCalculator = get_class('checkout.calculators', 'OrderTotalCalculator')
 
@@ -340,7 +349,6 @@ def add_new_elements_to_order(request, order_number):
     }
 
 
-from django.views import View
 
 """
 * Class-based view to add new elements to an existing order.
@@ -478,8 +486,6 @@ def get_hotel_offer(request, alert_id):
     return redirect(f'/catalogue/category/{user}_{category.id}/', hotel_offers)
 
 
-import schedule
-import time
 
 
 # Mock request for testing
@@ -569,12 +575,7 @@ def hotels(request):
     return render(request, f'/catalogue/category/{user}_{category.id}/')
 
 
-from django.core import serializers
-from django.http import JsonResponse
-from django.views import View
-from django.db.models import Q
-from django.utils.decorators import method_decorator
-from django.views.decorators.csrf import csrf_exempt
+
 
 """
  This is a Django View class which processes a POST request and returns a list of products filtered by the provided
@@ -692,8 +693,6 @@ def alerts_list(request):
     alerts = PriceAlert.objects.filter(user=request.user)
     return render(request, 'oscar/customer/alerts/alert_list.html', {'alerts': alerts})
 
-
-from oscar.apps.catalogue.models import Product
 
 """
 This function sorts the child products of a given parent product by price.

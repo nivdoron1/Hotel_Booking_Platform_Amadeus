@@ -14,7 +14,6 @@ from pathlib import Path
 from oscar.defaults import *
 
 from datetime import timedelta
-from celery.schedules import crontab
 import django.core.mail.backends.console
 
 OSCAR_DASHBOARD_NAVIGATION.append(
@@ -98,8 +97,6 @@ INSTALLED_APPS = [
     'oscar.apps.dashboard.communications.apps.CommunicationsDashboardConfig',
     'oscar.apps.dashboard.shipping.apps.ShippingDashboardConfig',
     'widget_tweaks',
-    'django_celery_results',
-    'django_celery_beat',
     'haystack',
     'treebeard',
     'frobshop.PriceAlert',
@@ -236,22 +233,6 @@ from datetime import timedelta
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 OSCAR_SHOP_NAME = "HOLIOLI"
 LOGIN_URL = '/accounts/login/'
-# CELERY_RESULT_BACKEND = 'django-db'
-# Celery configurations
-CELERY_BROKER_URL = 'redis://localhost:6379/0' # Using Redis as the message broker
 
-CELERY_RESULT_BACKEND = 'redis://localhost:6379/0'
-CELERY_ACCEPT_CONTENT = ['json']
-CELERY_TASK_SERIALIZER = 'json'
-CELERY_RESULT_SERIALIZER = 'json'
-CELERY_TIMEZONE = 'UTC'
-
-#CELERY_BEAT_SCHEDULE = {
-
-    #'send-email-every-30-seconds': {
-     #   'task': 'frobshop.tasks.send_email_task',
-      #  'schedule': timedelta(seconds=30),
- #   },
-#}
 
 OSCAR_PRODUCTS_PER_PAGE = 150
