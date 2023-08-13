@@ -50,7 +50,7 @@
             </div>
         {% endfor %}
     {% endfor %}
-<div class="col-sm-4">
+<div id="filter-section" class="col-sm-4">
                 {% csrf_token %}
               <!-- Filter options -->
               <div class="container mt-4">
@@ -154,10 +154,8 @@
             </p>
         {% endif %}
     </form>
-
-<script src="/static/js/catalogue/browse.js"></script>
 <script src="/static/js/catalogue/filter_check.js"></script>
-
+<script src="/static/js/catalogue/browse.js"></script>
 
 {% endblock content %}
 

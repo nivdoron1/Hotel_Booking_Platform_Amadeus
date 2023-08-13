@@ -12,7 +12,7 @@ Hotel Booking
 - [Integration Setup](#integration-setup)
   - [Amadeus API Integration](#amadeus-api-integration)
     - [Obtaining Amadeus API Key and Secret](#obtaining-amadeus-api-key-and-secret)
-    - [Test (Self) Mode vs. Production Mode](#test-self-mode-vs-production-mode)
+    - [Test (test) Mode vs. Production Mode](#test-test-mode-vs-production-mode)
   - [Google API](#google-api)
   - [Geoapify](#geoapify)
   - [OpenCageData API](#opencagedata-api)
@@ -144,9 +144,9 @@ Navigate to [Amadeus for Developers](https://developers.amadeus.com/) and sign u
    4. **Retrieve Your Credentials**:
      After creating the application, you will be provided with an `API Key` and `API Secret`. These are essential for making authenticated requests to the Amadeus API.
 
-### Test (Self) Mode vs. Production Mode
+### Test (test) Mode vs. Production Mode
 
-- **Test (Self) Mode**:
+- **Test (test) Mode**:
   - This is a sandbox environment provided by Amadeus for developers to test their integrations.
   - It doesn't involve real transactions or data. The data returned by the API in this mode is mock data.
   - It's free to use and is mainly for development and testing purposes. 
@@ -179,7 +179,7 @@ The primary difference between the production and test environments in Amadeus i
 
 - **Test (Sandbox) URL**:
   ```
-  https://self.api.amadeus.com/
+  https://test.api.amadeus.com/
   ```
 
 ### 2. Making the Switch
@@ -193,7 +193,7 @@ for example:
 
 - **Test (Sandbox) Mode**:
   ```python
-  url = "https://self.api.amadeus.com/v1/reference-data/locations/hotels/by-geocode"
+  url = "https://test.api.amadeus.com/v1/reference-data/locations/hotels/by-geocode"
   ```
 
 ### 3. Implementation in Your Code
