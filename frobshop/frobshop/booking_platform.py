@@ -65,6 +65,9 @@ def get_hotel_offer_list(access_token, username, lat, lng, category, checkInDate
     hotel_ids_d = []
     if hotel_id is not None:
         hotel_ids.append(hotel_id)
+        hotel_data = get_hotel_by_hotels_list(access_token=access_token, hotel_ids=hotel_ids)
+        print(hotel_data)
+        hotel_ids_d.append(hotel_data["data"][0])
     else:
         hotel_ids_data = get_hotel_geo_list(access_token=access_token, latitude=lat, longitude=lng)
         try:
@@ -84,6 +87,7 @@ def get_hotel_offer_list(access_token, username, lat, lng, category, checkInDate
         "bestRateOnly": bestRateOnly,
     }
     response = requests.get(url, headers=headers, params=params)
+    print(response)
     if response.status_code == 200:
         hotel_details_list = []
         data = response.json()
@@ -291,7 +295,7 @@ based on the provided city code.
 
 
 def get_hotel_city_list(access_token, cityCode):
-    url = "https://test.api.amadeus.com/v1/reference-data/locations/hotels/by-city"
+    url = "https://api.amadeus.com/v1/reference-data/locations/hotels/by-city"
 
     headers = {
         "Authorization": f"Bearer {access_token}",
@@ -338,7 +342,6 @@ This function returns the geocodes (latitude and longitude) of a specific locati
 def get_geocode(location):
     # OpenCageData API endpoint
     url = "https://api.opencagedata.com/geocode/v1/json"
-
 
     # Parameters for the API request
     params = {
@@ -396,6 +399,26 @@ def get_hotel_geo_list(access_token, latitude, longitude):
 
     response = requests.get(url, headers=headers, params=params)
 
+    if response.status_code == 200:
+        return response.json()
+    else:
+        print("Failed to get data:", response.status_code)
+
+
+def get_hotel_by_hotels_list(access_token, hotel_ids):
+    url = "https://api.amadeus.com/v1/reference-data/locations/hotels/by-hotels"
+
+    headers = {
+        "Authorization": f"Bearer {access_token}",
+        "Content-Type": "application/json"
+    }
+    print(hotel_ids)
+    params = {
+        "hotelIds": hotel_ids,
+    }
+
+    response = requests.get(url, headers=headers, params=params)
+    print(response)
     if response.status_code == 200:
         return response.json()
     else:
