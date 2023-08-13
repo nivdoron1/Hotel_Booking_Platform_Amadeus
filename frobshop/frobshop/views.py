@@ -1,3 +1,4 @@
+import base64
 import json
 from dotenv import load_dotenv
 from datetime import datetime
@@ -132,7 +133,7 @@ Handles the payment form submission.
 @require_POST
 def handle_payment(request):
     # Extract all the form data from the POST request
-    key = CREDIT_CARD_KEY
+    key = CREDIT_CARD_KEY.encode()
     offer_id = [line.product.title for line in request.basket.lines.all()][0].split(",")[0]
     username = get_username(request=request)
     delete_offerId(username=username)
@@ -278,8 +279,7 @@ def complete_purchase(request):
     except OfferInformation.DoesNotExist:
         # Handle the case where the data does not exist
         return JsonResponse({'status': 'error', 'message': 'Offer information not found.'}, status=404)
-    key = f"b'${CREDIT_CARD_KEY}'"
-
+    key = CREDIT_CARD_KEY.encode()
     # Extract data from the queried object
     title = offer_info.title
     first_name = offer_info.first_name
@@ -288,29 +288,32 @@ def complete_purchase(request):
     email = offer_info.email
     payment_method = offer_info.payment_method
     card_vendor_code = offer_info.card_vendor_code
-    card_number = decrypt_card(key, offer_info.card_number)
+    card_encrypt = offer_info.card_number
+    card_number = decrypt_card(key, card_encrypt)
     card_expiry_date = offer_info.card_expiry_date
     booking_response = post_booking(access_token=access_token, offer_id=offer_id, title=title, first_name=first_name,
                                     last_name=last_name,
                                     phone=phone, email=email, method="CreditCard", vendor_code=card_vendor_code,
                                     card_number=card_number, expiry_date=card_expiry_date)
-    booking_id = booking_response['data'][0]['id']
-    provider_confirmation_id = booking_response['data'][0]['providerConfirmationId']
-    reference_id = booking_response['data'][0]['associatedRecords'][0]['reference']
-    origin_system_code = booking_response['data'][0]['associatedRecords'][0]['originSystemCode']
+    if booking_response is not None:
 
-    # Save the new fields in the session
-    request.session['booking_id'] = booking_id
-    request.session['provider_confirmation_id'] = provider_confirmation_id
-    request.session['reference_id'] = reference_id
-    request.session['origin_system_code'] = origin_system_code
-    return JsonResponse({
-        'status': 'success',
-        'booking_id': booking_id,
-        'provider_confirmation_id': provider_confirmation_id,
-        'reference_id': reference_id,
-        'origin_system_code': origin_system_code,
-    })
+        booking_id = booking_response['data'][0]['id']
+        provider_confirmation_id = booking_response['data'][0]['providerConfirmationId']
+        reference_id = booking_response['data'][0]['associatedRecords'][0]['reference']
+        origin_system_code = booking_response['data'][0]['associatedRecords'][0]['originSystemCode']
+
+        # Save the new fields in the session
+        request.session['booking_id'] = booking_id
+        request.session['provider_confirmation_id'] = provider_confirmation_id
+        request.session['reference_id'] = reference_id
+        request.session['origin_system_code'] = origin_system_code
+        return JsonResponse({
+            'status': 'success',
+            'booking_id': booking_id,
+            'provider_confirmation_id': provider_confirmation_id,
+            'reference_id': reference_id,
+            'origin_system_code': origin_system_code,
+        })
 
 
 """
