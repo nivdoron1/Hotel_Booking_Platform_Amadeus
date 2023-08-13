@@ -149,7 +149,6 @@ def handle_payment(request):
     offer_id = [line.product.title for line in request.basket.lines.all()][0].split(",")[0]
     username = get_username(request=request)
     delete_offerId(username=username)
-    print(offer_id)
     title = request.POST.get('title', '')
     first_name = request.POST.get('first_name', '')
     last_name = request.POST.get('last_name', '')
@@ -281,7 +280,6 @@ Handles the completion of a purchase.
 @require_http_methods(["POST"])
 def complete_purchase(request):
     offer_id = [line.product.title for line in request.basket.lines.all()][0].split(",")[0]
-    print(offer_id)
 
     # Fetch the data using the offer_id from the OfferInformation model
     try:
@@ -305,7 +303,6 @@ def complete_purchase(request):
                                     last_name=last_name,
                                     phone=phone, email=email, method="CreditCard", vendor_code=card_vendor_code,
                                     card_number=card_number, expiry_date=card_expiry_date)
-    print(booking_response)
     booking_id = booking_response['data'][0]['id']
     provider_confirmation_id = booking_response['data'][0]['providerConfirmationId']
     reference_id = booking_response['data'][0]['associatedRecords'][0]['reference']
@@ -441,7 +438,6 @@ def get_hotel_offers(request):
     category = create_new_category(username)
     request.session['location'] = location
     handel.remove_hotels(offer_id=None, category=category)
-    print(str(lat) + " " + str(lng))
     hotel_offers = get_hotel_offer_list(access_token=access_token, username=username, lat=lat, lng=lng,
                                         checkInDate=checkInDate, category=category,
                                         checkOutDate=checkOutDate, adults=adults, roomQuantity=roomQuantity)

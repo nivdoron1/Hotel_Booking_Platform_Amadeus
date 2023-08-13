@@ -67,12 +67,11 @@ def get_hotel_offer_list(access_token, username, lat, lng, category, checkInDate
         hotel_ids.append(hotel_id)
     else:
         hotel_ids_data = get_hotel_geo_list(access_token=access_token, latitude=lat, longitude=lng)
-        print(hotel_ids_data)
         try:
             hotel_id = [d["hotelId"] for d in hotel_ids_data["data"]]
         except (KeyError, TypeError):
             hotel_id = []
-        for i in range(0, min(len(hotel_id), 5)):
+        for i in range(0, min(len(hotel_id), 97)):
             hotel_ids_d.append(hotel_ids_data["data"][i])
             hotel_ids.append(hotel_id[i])
     params = {
@@ -96,7 +95,6 @@ def get_hotel_offer_list(access_token, username, lat, lng, category, checkInDate
                 if hotel_of.get('hotelId', '') == hotel_hotelID:
                     hotel_desc = hotel_of
                     break
-            print(hotel_desc)
             hotel_stars = hotel_desc.get('rating', 0)
             handel.hotels_list[hotel_id] = []
             hotel_details = {
@@ -118,7 +116,6 @@ def get_hotel_offer_list(access_token, username, lat, lng, category, checkInDate
                 'lastUpdate': hotel_desc.get('lastUpdate', ''),
             }
             parent_description = json.dumps(hotel_details, indent=4)
-            # print(parent_description)
             image = images_of_hotel(hotel_desc)
 
             parent_product = add_parent_product(title=username + "," + hotel_id, description=parent_description,
