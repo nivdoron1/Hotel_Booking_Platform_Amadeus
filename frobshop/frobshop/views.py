@@ -314,6 +314,9 @@ def complete_purchase(request):
             'reference_id': reference_id,
             'origin_system_code': origin_system_code,
         })
+    return JsonResponse({
+            'status': 'error try again',
+        })
 
 
 """
@@ -331,12 +334,11 @@ def add_new_elements_to_order(request, order_number):
     order.Booking_ID = request.session['booking_id']
     order.Provider_Confirmation_ID = request.session['provider_confirmation_id']
     order.Reference_ID = request.session['reference_id']
-    order.Origin_System_Cod = request.session['origin_system_code']
+    order.Origin_System_Code = request.session['origin_system_code']
     order.save()
 
     context = {
         'order': order,
-        # ... other context variables ...
     }
 
 

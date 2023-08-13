@@ -63,6 +63,8 @@ def get_hotel_offer_list(access_token, username, lat, lng, category, checkInDate
     }
     hotel_ids = []
     hotel_ids_d = []
+    #for test mode apply the MCLONGHM hotel.
+    #hotel_id = 'MCLONGHM'
     if hotel_id is not None:
         hotel_ids.append(hotel_id)
         hotel_data = get_hotel_by_hotels_list(access_token=access_token, hotel_ids=hotel_ids)

@@ -24,7 +24,6 @@
         }</style>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/intl-tel-input/17.0.8/css/intlTelInput.css">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/intl-tel-input/17.0.8/js/intlTelInput.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/intl-tel-input/17.0.8/js/utils.js"></script>
  <style>
     /* google fonts */
 @import url("https://fonts.googleapis.com/css?family=Arimo|Roboto");
@@ -598,7 +597,6 @@ window.addEventListener("load", () => {
 });
 </script>
 <script src="/static/js/checkout/payment_details.js"></script>
-<script src="/static/js/checkout/phone_valid_payment_details.js"></script>
 <script>
     let input = document.querySelector("#phone");
     let iti = window.intlTelInput(input, {
@@ -608,6 +606,13 @@ window.addEventListener("load", () => {
     document.getElementById('paymentForm').addEventListener('submit', function(e) {
       let fullNumber = iti.getNumber(); // This will get the full number, e.g. +972501234567
       input.value = fullNumber; // Set the input's value to the full number
+    });
+
+    document.querySelector('form').addEventListener('submit', function(e) {
+        if(!phoneInput.isValidNumber()) {
+            alert('Invalid Phone Number');
+            e.preventDefault();
+        }
     });
 </script>
 </body>

@@ -20,7 +20,7 @@ async function handleFormSubmit(event) {
                     event.target.submit();
                 } else {
                     console.error('Error:', data);
-                    // Display an error message to the user
+                    alert(data.status)
                 }
             } catch (error) {
                 console.error('Error:', error);
