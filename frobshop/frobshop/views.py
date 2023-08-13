@@ -661,7 +661,7 @@ def hotel_view(request):
         check_out_date = datetime.strptime(request.POST.get('checkOutDate'), "%Y-%m-%d").date()
         number_of_adults = int(request.POST.get('adults'))
         number_of_rooms = int(request.POST.get('roomQuantity'))
-        price = Decimal(request.POST.get('price'))
+        price = int(request.POST.get('price'))
         hotel_id = request.POST.get('location').split(",")[-1]
 
         alert, created = PriceAlert.objects.get_or_create(
